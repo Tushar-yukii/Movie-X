@@ -1,7 +1,7 @@
 import { View, Text, ImageBackground } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
-
+import {images} from "./assests/images"
 
 const _layout = () => {
   return (

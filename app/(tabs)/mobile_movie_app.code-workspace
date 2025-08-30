@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"name": "mobile_movie_app",
+			"path": "../.."
+		},
+		{
+			"name": "assets",
+			"path": "../../../../Pictures/assets"
+		},
+		{
+			"name": "constants",
+			"path": "../../../../Pictures/constants"
+		},
+		{
+			"name": "interfaces",
+			"path": "../../../../Pictures/interfaces"
+		},
+		{
+			"name": "types",
+			"path": "../../../../Pictures/types"
+		}
+	],
+	"settings": {}
+}
