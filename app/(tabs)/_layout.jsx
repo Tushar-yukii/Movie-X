@@ -1,7 +1,7 @@
 import { View, Text, ImageBackground } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
-import {images} from "./assests/images"
+import {images} from "./assets/images" // error
 
 const _layout = () => {
   return (
