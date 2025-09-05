@@ -36,6 +36,7 @@ const _layout = () => {
           justifyContent: "center",
           alignItems: "center",
         },
+
         tabBarStyle: {
           backgroundColor: "#0f0d23",
           borderRadius: 50,
