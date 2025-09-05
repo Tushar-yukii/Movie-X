@@ -4,7 +4,7 @@ import { Tabs } from "expo-router";
 import React from "react";
 import { Image, ImageBackground, Text, View } from "react-native";
 
-const TabIcon = ({ focused, icons, title }) => {
+const TabIcon = ({ focused, icons, title }: any) => {
   if (focused) {
     return (
       <ImageBackground
@@ -50,7 +50,7 @@ const _layout = () => {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="Index"
         options={{
           title: "Home",
           headerShown: false,

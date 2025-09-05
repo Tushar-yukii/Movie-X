@@ -14,5 +14,5 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts"
-, "app/(tabs)/index.jsx", "app/Onboarding.jsx", "app/_layout.jsx", "app/movies/[id].jsx", "app/(tabs)/search.jsx", "app/(tabs)/saved.jsx", "app/(tabs)/profile.jsx", "app/(tabs)/_layout.jsx", "constants/images.ts", "constants/icons.ts", "interfaces/interfaces.d.ts", "types/images.d.ts", "components/SearchBar.jsx"  ]
+, "app/(tabs)/Index.tsx", "app/Onboarding.jsx", "app/_layout.jsx", "app/movies/[id].jsx", "app/(tabs)/search.jsx", "app/(tabs)/saved.jsx", "app/(tabs)/profile.jsx", "app/(tabs)/_layout.tsx", "constants/images.ts", "constants/icons.ts", "interfaces/interfaces.d.ts", "types/images.d.ts", "components/SearchBar.jsx"  ]
 }

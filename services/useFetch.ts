@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 // useFetch(fetchMovies)
 
-const useFetch = <T>(fetchFuction: () => Promise<T>, autoFetch = true) => {
+const useFetch = <T,>(fetchFuction: () => Promise<T>, autoFetch = true) => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>();
