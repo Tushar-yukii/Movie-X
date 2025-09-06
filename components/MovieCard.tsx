@@ -10,7 +10,7 @@ const MovieCard = ({
   vote_average,
   release_date,
 }: Movie) => {
-//   console.log(poster_path);
+  //   console.log(poster_path);
   return (
     <Link href={`/movies/${id}`} asChild>
       <TouchableOpacity className="w-[30%]">
@@ -29,7 +29,7 @@ const MovieCard = ({
         <View className="flex-row items-center justify-start gap-x-1">
           <Image source={icons.star} className="size-4" />
           <Text className="text-xs text-white font-bold uppercase">
-            {Math.round(vote_average / 2)}
+            {vote_average.toFixed(1)}
           </Text>
         </View>
         <View className="flex-row items-center justify-between">
@@ -46,4 +46,3 @@ const MovieCard = ({
 };
 
 export default MovieCard;
-
