@@ -59,7 +59,7 @@ export default function Index() {
               <FlatList
                 data={movies}
                 renderItem={({ item }) => <MovieCard {...item} />}
-                keyExtractor={(item) => item.id.toString()} // error
+                keyExtractor={(item) => item.id.toString()} 
                 numColumns={4}
                 columnWrapperStyle={{
                   justifyContent: "flex-start",
