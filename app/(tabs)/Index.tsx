@@ -17,26 +17,27 @@ import { getTrendingMovies } from "@/services/appwrite";
 import TrendingCard from "@/components/TrendingCard";
 
 export default function index() {
-  const router = useRouter();
+ const router = useRouter();
 
   const {
     data: trendingMovies,
     loading: trendingLoading,
     error: trendingError,
   } = useFetch(getTrendingMovies);
+
   const {
     data: movies,
     loading: moviesLoading,
-    error: MoviesError,
-  } = useFetch(() =>
-    fetchMovies({
-      query: "",
-    })
-  );
+    error: moviesError,
+  } = useFetch(() => fetchMovies({ query: "" }));
 
   return (
     <View className="flex-1 bg-primary">
-      <Image source={images.bg} className="absolute w-full z-0" />
+      <Image
+        source={images.bg}
+        className="absolute w-full z-0"
+        resizeMode="cover"
+      />
 
       <ScrollView
         className="flex-1 px-5"
@@ -51,48 +52,54 @@ export default function index() {
             color="#0000ff"
             className="mt-10 self-center"
           />
-        ) : MoviesError || trendingError ? (
-          <Text>Error : {MoviesError?.message || trendingError?.message}</Text>
+        ) : moviesError || trendingError ? (
+          <Text>Error: {moviesError?.message || trendingError?.message}</Text>
         ) : (
           <View className="flex-1 mt-5">
             <SearchBar
               onPress={() => {
                 router.push("/search");
               }}
-              placeholder="Search Movies..."
+              placeholder="Search for a movie"
             />
+
             {trendingMovies && (
               <View className="mt-10">
                 <Text className="text-lg text-white font-bold mb-3">
-                  Popular Movies
+                  Trending Movies
                 </Text>
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  className="mb-4 mt-3"
+                  data={trendingMovies}
+                  contentContainerStyle={{
+                    gap: 26,
+                  }}
+                  renderItem={({ item, index }) => (
+                    <TrendingCard movie={item} index={index} />
+                  )}
+                  keyExtractor={(item , index) => `${item.movie_id}-${index}`}
+                  ItemSeparatorComponent={() => <View className="w-4" />}
+                />
               </View>
             )}
+
             <>
-              <FlatList
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                ItemSeparatorComponent={() => <View className="w-4" />}
-                className="mb-4 mt-3"
-                data={trendingMovies}
-                renderItem={({ item, index }) => (
-                  <TrendingCard movie={item} index={index} />
-                )}
-                keyExtractor={(item) => item.movie_id.toString()}
-              />
               <Text className="text-lg text-white font-bold mt-5 mb-3">
                 Latest Movies
               </Text>
+
               <FlatList
                 data={movies}
                 renderItem={({ item }) => <MovieCard {...item} />}
-                keyExtractor={(item) => item.id.toString()}
-                numColumns={4}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
+                numColumns={3}
                 columnWrapperStyle={{
                   justifyContent: "flex-start",
                   gap: 20,
                   paddingRight: 5,
-                  paddingBottom: 15,
+                  marginBottom: 10,
                 }}
                 className="mt-2 pb-32"
                 scrollEnabled={false}
@@ -103,4 +110,4 @@ export default function index() {
       </ScrollView>
     </View>
   );
-}
+};
