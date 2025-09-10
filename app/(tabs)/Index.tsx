@@ -17,7 +17,7 @@ import { getTrendingMovies } from "@/services/appwrite";
 import TrendingCard from "@/components/TrendingCard";
 
 export default function index() {
- const router = useRouter();
+  const router = useRouter();
 
   const {
     data: trendingMovies,
@@ -60,13 +60,13 @@ export default function index() {
               onPress={() => {
                 router.push("/search");
               }}
-              placeholder="Search for a movie"
+              placeholder="Search across 2000+ Movies..."
             />
 
             {trendingMovies && (
               <View className="mt-10">
                 <Text className="text-lg text-white font-bold mb-3">
-                  Trending Movies
+                  Popular Movies
                 </Text>
                 <FlatList
                   horizontal
@@ -79,7 +79,7 @@ export default function index() {
                   renderItem={({ item, index }) => (
                     <TrendingCard movie={item} index={index} />
                   )}
-                  keyExtractor={(item , index) => `${item.movie_id}-${index}`}
+                  keyExtractor={(item, index) => `${item.movie_id}-${index}`}
                   ItemSeparatorComponent={() => <View className="w-4" />}
                 />
               </View>
@@ -110,4 +110,4 @@ export default function index() {
       </ScrollView>
     </View>
   );
-};
+}

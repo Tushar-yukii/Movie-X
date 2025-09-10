@@ -29,18 +29,16 @@ const Search = () => {
     const timeoutId = setTimeout(async () => {
       if (searchQuery.trim()) {
         await loadMovies();
-
-       
       } else {
         reset();
       }
     }, 500);
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
-  useEffect(()=> {
- if (movies?.length > 0 && movies?.[0])
-         updateSearchCount(searchQuery, movies[0]);
-  },[movies])
+  useEffect(() => {
+    if (movies?.length > 0 && movies?.[0])
+      updateSearchCount(searchQuery, movies[0]);
+  }, [movies]);
 
   return (
     <View className="flex-1 bg-primary">
@@ -69,7 +67,7 @@ const Search = () => {
             </View>
             <View className="my-5">
               <SearchBar
-                placeholder="Search movies..."
+                placeholder="Search 2000+ movies..."
                 value={searchQuery}
                 onChangeText={(text: string) => setSearchQuery(text)}
               />
