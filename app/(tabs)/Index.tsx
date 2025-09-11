@@ -68,6 +68,7 @@ export default function index() {
                 <Text className="text-lg text-white font-bold mb-3">
                   Popular Movies
                 </Text>
+
                 <FlatList
                   horizontal
                   showsHorizontalScrollIndicator={false}
