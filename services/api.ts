@@ -7,7 +7,11 @@ export const TMDB_CONFIG = {
   },
 };
 
-export const fetchMovies = async ({ query }: { query: string }) => {
+export const fetchMovies = async ({
+  query,
+}: {
+  query: string;
+}): Promise<Movie[]> => {
   const endpoint = query
     ? `${TMDB_CONFIG.BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
     : `${TMDB_CONFIG.BASE_URL}/discover/movie?sort_by=popularity.desc`;
@@ -16,12 +20,12 @@ export const fetchMovies = async ({ query }: { query: string }) => {
     method: "GET",
     headers: TMDB_CONFIG.headers,
   });
+
   if (!response.ok) {
     throw new Error(`Failed to fetch movies: ${response.statusText}`);
   }
 
   const data = await response.json();
-
   return data.results;
 };
 
@@ -36,12 +40,15 @@ export const fetchMovieDetails = async (
         headers: TMDB_CONFIG.headers,
       }
     );
-    if (!response.ok) throw new Error("failed to fetch movie details");
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch movie details: ${response.statusText}`);
+    }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching movie details:", error);
     throw error;
   }
 };
