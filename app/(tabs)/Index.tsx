@@ -16,9 +16,6 @@ import MovieCard from "@/components/MovieCard";
 import { getTrendingMovies } from "@/services/appwrite";
 import TrendingCard from "@/components/TrendingCard";
 
-
-
-
 export default function index() {
   const router = useRouter();
 
@@ -110,10 +107,8 @@ export default function index() {
               />
             </>
           </View>
-          
         )}
       </ScrollView>
-      
     </View>
   );
 }
