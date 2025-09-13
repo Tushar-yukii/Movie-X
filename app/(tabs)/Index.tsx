@@ -15,7 +15,8 @@ import useFetch from "@/services/useFetch";
 import MovieCard from "@/components/MovieCard";
 import { getTrendingMovies } from "@/services/appwrite";
 import TrendingCard from "@/components/TrendingCard";
-
+import { Ionicons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native";
 export default function index() {
   const router = useRouter();
 
@@ -61,7 +62,9 @@ export default function index() {
                 router.push("/search");
               }}
               placeholder="Search across 2000+ Movies..."
-            />
+            /><View className="">
+
+            </View>
 
             {trendingMovies && (
               <View className="mt-10">

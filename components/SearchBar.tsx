@@ -1,6 +1,7 @@
 import { View, Text, Image, TextInput } from "react-native";
 import React from "react";
 import { icons } from "@/constants/icons";
+import { TouchableOpacity } from "react-native";
 interface props {
   placeholder: string;
   onPress?: () => void;
@@ -10,7 +11,7 @@ interface props {
 
 const SearchBar = ({ placeholder, onPress, value, onChangeText }: props) => {
   return (
-    <View className="flex-row items-center bg-dark-200 rounded-full px-5 py-4">
+    <View className="flex-row items-center bg-blue-950 rounded-3xl px-5 py-0.5">
       <Image
         source={icons.search}
         className="size-5"
@@ -25,6 +26,13 @@ const SearchBar = ({ placeholder, onPress, value, onChangeText }: props) => {
         placeholderTextColor="#A8B5DB"
         className="flex-1 ml-2 text-white"
       />
+
+      <View className="flex-row items-center py-2 mt-1">
+        {/* Right-side category  */}
+        <TouchableOpacity className="bg-purple-400 px-5 py-2 rounded-2xl">
+          <Text className="text-sm font-extrabold text-purple-900">MOVIES</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
