@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import React from "react";
 import { Link } from "expo-router";
 import { icons } from "@/constants/icons";
@@ -23,17 +23,19 @@ const MovieCard = ({
           className="w-full h-52 rounded-3xl"
           resizeMode="cover"
         />
-        <Text className="text-sm font-bold text-white mt-2" numberOfLines={1}>
-          {title}
-        </Text>
-        <View className="flex-row items-center justify-start gap-x-1">
-          <Image source={icons.star} className="size-4" />
-          <Text className="text-xs text-white font-bold uppercase">
+        <View style={styles.ratingVote}>
+          <Image source={icons.star} style={styles.iconStar} />
+          <Text className="text-xs text-white font-extrabold uppercase">
             {vote_average.toFixed(1)}
           </Text>
         </View>
+
+        <Text className="text-sm font-bold text-white mt-2" numberOfLines={1}>
+          {title}
+        </Text>
+
         <View className="flex-row items-center justify-between">
-          <Text className="text-xs text-light-300 font-medium mt-1">
+          <Text className="text-xs text-light-300 font-bold mt-1">
             {release_date?.split("-")[0]}
           </Text>
         </View>
@@ -43,3 +45,22 @@ const MovieCard = ({
 };
 
 export default MovieCard;
+const styles = StyleSheet.create({
+  ratingVote: {
+    backgroundColor: "#6C4EE6",
+    width: 41,
+    height: 23,
+
+    alignItems: "center",
+    borderRadius: 7,
+    flexDirection: "row",
+    marginLeft: 75,
+    paddingHorizontal: 3,
+  },
+  iconStar: {
+    width: 14,
+    height: 14,
+    marginRight: 4,
+    
+  },
+});

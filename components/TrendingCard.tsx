@@ -1,75 +1,40 @@
-// import { View, Text, TouchableOpacity, Image } from "react-native";
-// import React from "react";
-// import { Link } from "expo-router";
-// import { images } from "@/constants/images";
-// import MaskedView from "@react-native-masked-view/masked-view";
-
-// const TrendingCard = ({
-//   movie: { movie_id, title, poster_url },
-//   index,
-// }: TrendingCardProps) => {
-//   return (
-//     <Link href={`/movies/${movie_id}`} asChild>
-//       <TouchableOpacity className="w-32 relative pl-5">
-//         <Image
-//           source={{ uri: poster_url }}
-//           className="w-32 h-48 rounded-3xl"
-//           resizeMode="cover"
-//         />
-//         <View className="absolute bottom-9 -left-3.5 px-2 py-1 rounded-full">
-//           <MaskedView
-//             maskElement={
-//               <Text className="font-bold text-white text-6xl">{index + 1}</Text>
-//             }
-//           >
-//             <Image
-//               source={images.rankingGradient}
-//               className="size-14"
-//               resizeMode="cover"
-//             />
-//           </MaskedView>
-//         </View>
-//         <Text
-//           className="text-sm font-bold mt-2 text-light-300"
-//           numberOfLines={2}
-//         >
-//           {title}
-//         </Text>
-//       </TouchableOpacity>
-//     </Link>
-//   );
-// };
-
-// export default TrendingCard;
-
-import React from "react";
-import { TouchableOpacity, View, Text, Image, StyleSheet } from "react-native";
-import { Link } from "expo-router";
 import { icons } from "@/constants/icons";
+import { Link } from "expo-router";
+import React from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-// ✅ Define proper types
-type TrendingMovie = {
+type Movie = {
   movie_id: number;
   title: string;
   poster_url: string;
-  vote_average?: number; // optional, because API may not always include it
+  vote_average?: number;
+  
 };
 
 type TrendingCardProps = {
-  movie: TrendingMovie;
+  movie: Movie;
   index: number;
+  
 };
 
-// ✅ TrendingCard Component
-const TrendingCard: React.FC<TrendingCardProps> = ({ movie, index }) => {
-  const { movie_id, title, poster_url, vote_average } = movie;
+const TrendingCard = ({ movie, index }: TrendingCardProps) => {
+  const { movie_id, poster_url, vote_average, title } = movie;
+
+  // console.log("TrendingCard movie:", movie);
 
   return (
     <View style={styles.card}>
       <Link href={`/movies/${movie_id}`} asChild>
         <TouchableOpacity activeOpacity={0.8}>
           {/* Poster */}
-          <Image source={{ uri: poster_url }} style={styles.image} />
+          <Image
+            source={{
+              uri: poster_url?.startsWith("http")
+                ? poster_url
+                : `https://image.tmdb.org/t/p/w500${poster_url}`, // fallback for TMDB paths
+            }}
+            style={styles.image}
+          />
 
           {/* Title + Rating */}
           <View style={styles.row}>
@@ -83,37 +48,36 @@ const TrendingCard: React.FC<TrendingCardProps> = ({ movie, index }) => {
                 style={styles.starIcon}
                 resizeMode="contain"
               />
-
-              {/* error */}
               <Text style={styles.rating}>
-                {vote_average !== null &&
-                vote_average !== undefined &&
-                !isNaN(Number(vote_average))
+                {vote_average !== null && Number(vote_average) > 0
                   ? Number(vote_average).toFixed(1)
                   : "N/A"}
               </Text>
+              {/* overview */}
             </View>
           </View>
+          
         </TouchableOpacity>
       </Link>
     </View>
   );
 };
 
-// ✅ Styles
+// Styles
 const styles = StyleSheet.create({
   card: {
-    padding: 1,
+    padding: 0.5,
     width: 370,
-    marginRight: 16,
+    marginRight: 20,
     paddingRight: 11,
   },
   image: {
     resizeMode: "cover",
     width: "100%",
-    height: 200,
-    borderRadius: 12,
-    marginBottom: 14,
+    height:197,
+    borderRadius: 15,
+    marginBottom: 9,
+    backgroundColor: "#222", // fallback background if poster is missing
   },
   row: {
     flexDirection: "row",
@@ -122,8 +86,8 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: 17,
+    fontWeight: "900",
+    fontSize: 14,
     flex: 1,
   },
   ratingBox: {
@@ -144,6 +108,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "bold",
+  },
+  desc: {
+    color: "#A8B5DB",
+    fontSize: 12,
+    marginTop: 6,
   },
 });
 

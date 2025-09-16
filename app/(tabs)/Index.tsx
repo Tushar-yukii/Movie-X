@@ -67,15 +67,14 @@ export default function index() {
 
             {trendingMovies && (
               <View className="mt-10">
-                <Text className="text-lg text-white font-bold mb-3">
-                  treading Movies
+                <Text className="text-lg text-white font-bold mb-3 ml-3">
+                  Treading Movies
                 </Text>
 
-
-              {/* change */}
+                {/* change */}
                 <FlatList
                   horizontal
-                  // pagingEnabled // 👈 makes it snap like a carousel
+                  // pagingEnabled //  makes it snap like a carousel
                   showsHorizontalScrollIndicator={false}
                   data={trendingMovies}
                   renderItem={({ item, index }) => (
@@ -88,7 +87,7 @@ export default function index() {
             )}
 
             <>
-              <Text className="text-lg text-white font-bold mt-5 mb-3">
+              <Text className="text-lg text-white font-bold mt-5 mb-3 ml-1">
                 Latest Movies
               </Text>
 
