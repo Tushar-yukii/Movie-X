@@ -55,7 +55,7 @@ const TrendingCard = ({ movie, index }: TrendingCardProps) => {
             </View>
           </View>
           {/* overview */}
-  {/* error */}
+          {/* error */}
           <Text style={styles.desc} numberOfLines={3}>
             {overview || "No overview available"}
           </Text>

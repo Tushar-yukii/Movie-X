@@ -52,3 +52,7 @@ export const fetchMovieDetails = async (
     throw error;
   }
 };
+
+
+
+
