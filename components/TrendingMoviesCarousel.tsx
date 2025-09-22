@@ -28,4 +28,4 @@
 // };
 
 // export default TrendingMoviesCarousel;
-error
+ error

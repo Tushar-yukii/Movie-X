@@ -120,9 +120,7 @@ const styles = StyleSheet.create({
 
 export default TrendingCard;
 
-
-
-// sample code 
+// sample code
 // TrendingCard.tsx
 // import { icons } from "@/constants/icons";
 // import { Link } from "expo-router";
@@ -139,12 +137,12 @@ export default TrendingCard;
 
 // type TrendingCardProps = {
 //   movie: Movie;
-//   index?: number; 
+//   index?: number;
 // };
 
 // const TrendingCard = ({ movie }: TrendingCardProps) => {
 //   const { id, poster_path, vote_average, title, overview } = movie;
- 
+
 //   return (
 //     <View style={styles.card}>
 //       <Link href={`/movies/${id}`} asChild>
