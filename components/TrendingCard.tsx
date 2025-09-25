@@ -9,6 +9,7 @@ type Movie = {
   poster_url: string;
   vote_average?: number;
   overview?: string;
+  // release_date?: string;
 };
 
 type TrendingCardProps = {
@@ -17,7 +18,7 @@ type TrendingCardProps = {
 };
 
 const TrendingCard = ({ movie, index }: TrendingCardProps) => {
-  const { movie_id, poster_url, vote_average, title, overview } = movie;
+  const { movie_id, poster_url, vote_average, title, overview  } = movie;
 
   // console.log("TrendingCard movie:", movie);
 
@@ -47,11 +48,13 @@ const TrendingCard = ({ movie, index }: TrendingCardProps) => {
                 style={styles.starIcon}
                 resizeMode="contain"
               />
-              <Text style={styles.rating}>
-                {vote_average !== null && Number(vote_average) > 0
-                  ? Number(vote_average).toFixed(1)
-                  : "N/A"}
-              </Text>
+              <View className="text-xs text-white font-extrabold uppercase">
+               <Text style={styles.rating}>
+  {typeof vote_average === "number" && vote_average > 0
+    ? vote_average.toFixed(1)
+    : "N/A"}
+</Text>
+              </View>
             </View>
           </View>
           {/* overview */}
@@ -59,6 +62,7 @@ const TrendingCard = ({ movie, index }: TrendingCardProps) => {
           <Text style={styles.desc} numberOfLines={3}>
             {overview || "No overview available"}
           </Text>
+        
         </TouchableOpacity>
       </Link>
     </View>
