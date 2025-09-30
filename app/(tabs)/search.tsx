@@ -43,7 +43,7 @@ const Search = () => {
   }, [searchQuery]);
 
   return (
-    <View className="flex-1 bg-primary">
+    <View className="flex-1" style={{backgroundColor : "#2e144f"}}>
       <Image
         source={images.bg}
         className="flex-1 absolute w-full z-0"

@@ -6,6 +6,7 @@ import {
   FlatList,
   Image,
   ScrollView,
+  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -33,7 +34,7 @@ export default function index() {
   } = useFetch(() => fetchMovies({ query: "" }));
 
   return (
-    <View className="flex-1 bg-primary">
+    <View style={styles.homestyle}>
       <Image
         source={images.bg}
         className="absolute w-full z-0"
@@ -112,3 +113,9 @@ export default function index() {
     </View>
   );
 }
+const styles = StyleSheet.create({
+  homestyle: {
+    flex: 1,
+    backgroundColor: "#2e144f",
+  },
+});

@@ -33,7 +33,7 @@ const MovieDetails = () => {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-primary">
+      <View className="flex-1 items-center justify-center" style={{backgroundColor : "#2e144f"}}>
         <Text className="text-white">Loading...</Text>
       </View>
     );
@@ -48,7 +48,7 @@ const MovieDetails = () => {
   }
 
   return (
-    <View className="bg-primary flex-1">
+    <View className="flex-1" style={{backgroundColor : "#2e144f"}}>
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View>
           <Image
