@@ -73,14 +73,14 @@ const TrendingCard = ({ movie, index }: TrendingCardProps) => {
 const styles = StyleSheet.create({
   card: {
     padding: 0.5,
-    width: 370,
+    width: 385,
     marginRight: 20,
     paddingRight: 11,
   },
   image: {
     resizeMode: "cover",
     width: "100%",
-    height: 197,
+    height: 240,
     borderRadius: 15,
     marginBottom: 9,
     backgroundColor: "#222", // fallback background if poster is missing
