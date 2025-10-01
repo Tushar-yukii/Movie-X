@@ -18,7 +18,7 @@ type TrendingCardProps = {
 };
 
 const TrendingCard = ({ movie, index }: TrendingCardProps) => {
-  const { movie_id, poster_url, vote_average, title, overview  } = movie;
+  const { movie_id, poster_url, vote_average, title, overview } = movie;
 
   // console.log("TrendingCard movie:", movie);
 
@@ -49,11 +49,11 @@ const TrendingCard = ({ movie, index }: TrendingCardProps) => {
                 resizeMode="contain"
               />
               <View className="text-xs text-white font-extrabold uppercase">
-               <Text style={styles.rating}>
-  {typeof vote_average === "number" && vote_average > 0
-    ? vote_average.toFixed(1)
-    : "N/A"}
-</Text>
+                <Text style={styles.rating}>
+                  {typeof vote_average === "number" && vote_average > 0
+                    ? vote_average.toFixed(1)
+                    : "N/A"}
+                </Text>
               </View>
             </View>
           </View>
@@ -62,7 +62,6 @@ const TrendingCard = ({ movie, index }: TrendingCardProps) => {
           <Text style={styles.desc} numberOfLines={3}>
             {overview || "No overview available"}
           </Text>
-        
         </TouchableOpacity>
       </Link>
     </View>
@@ -80,7 +79,7 @@ const styles = StyleSheet.create({
   image: {
     resizeMode: "cover",
     width: "100%",
-    height: 240,
+    height: 200,
     borderRadius: 15,
     marginBottom: 9,
     backgroundColor: "#222", // fallback background if poster is missing
