@@ -118,7 +118,7 @@ const MovieDetails = () => {
           className="size-5 mr-1 mt-0.5 rotate-180"
           tintColor="#fff"
         />
-        <Text className="text-white font-extrabold text-base">Back</Text>
+        <Text className="text-white font-bold text-base">Back</Text>
       </TouchableOpacity>
     </View>
   );
