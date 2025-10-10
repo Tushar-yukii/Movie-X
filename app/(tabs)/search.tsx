@@ -44,11 +44,7 @@ const Search = () => {
 
   return (
     <View className="flex-1" style={{backgroundColor : "#2e144f"}}>
-      <Image
-        source={images.bg}
-        className="flex-1 absolute w-full z-0"
-        resizeMode="cover"
-      />
+      
 
       <FlatList
         data={movies}
@@ -65,7 +61,8 @@ const Search = () => {
         ListHeaderComponent={
           <>
             <View className="w-full flex-row justify-center mt-20 items-center">
-              <Image source={icons.logo} className="w-12 h-10" />
+              <Image source={icons.logo} className="w-12 h-10" /> 
+              {/* requrid change */}
             </View>
             <View className="my-5">
               <SearchBar
