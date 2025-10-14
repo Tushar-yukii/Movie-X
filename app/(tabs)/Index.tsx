@@ -35,17 +35,13 @@ export default function index() {
 
   return (
     <View style={styles.homestyle}>
-     
-
       <ScrollView
         className="flex-1 px-5"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ minHeight: "100%", paddingBottom: 10 }}
       >
-       {/* REQURID CHANGES */}
-        <Image source={icons.logo} style={styles.logo}/>
-
-
+        {/* REQURID CHANGES */}
+        <Image source={icons.logo} style={styles.logo} />
 
         {moviesLoading || trendingLoading ? (
           <ActivityIndicator
@@ -117,14 +113,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#2e144f",
   },
- logo:{
-  width: 55,
-  height: 65,
-  marginTop: 10,
-  // marginLeft: 1,
-  marginRight: 100,
-
-
- }
-
+  logo: {
+    width: 55,
+    height: 65,
+    marginTop: 10,
+    // marginLeft: 1,
+    marginRight: 100,
+  },
 });
