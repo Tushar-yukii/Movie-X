@@ -25,7 +25,7 @@ const Search = () => {
     false
   );
 
-   useEffect(() => {
+  useEffect(() => {
     const timeoutId = setTimeout(async () => {
       if (searchQuery.trim()) {
         await loadMovies();
@@ -43,9 +43,7 @@ const Search = () => {
   }, [searchQuery]);
 
   return (
-    <View className="flex-1" style={{backgroundColor : "#2e144f"}}>
-      
-
+    <View className="flex-1" style={{ backgroundColor: "#2e144f" }}>
       <FlatList
         data={movies}
         renderItem={({ item }) => <MovieCard {...item} />}
@@ -61,8 +59,7 @@ const Search = () => {
         ListHeaderComponent={
           <>
             <View className="w-full flex-row justify-center mt-20 items-center">
-              <Image source={icons.logo} className="w-12 h-10" /> 
-              {/* requrid change */}
+              <Image source={icons.logo} className="mt-6 h-12 w-14 " />
             </View>
             <View className="my-5">
               <SearchBar
@@ -85,7 +82,7 @@ const Search = () => {
                 Error : {error.message}
               </Text>
             )}
-           {!loading &&
+            {!loading &&
               !error &&
               searchQuery.trim() &&
               movies?.length! > 0 && (

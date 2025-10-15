@@ -16,8 +16,7 @@ import useFetch from "@/services/useFetch";
 import MovieCard from "@/components/MovieCard";
 import { getTrendingMovies } from "@/services/appwrite";
 import TrendingCard from "@/components/TrendingCard";
-// import { Ionicons } from "@expo/vector-icons";
-// import { TouchableOpacity } from "react-native";
+
 export default function index() {
   const router = useRouter();
 
@@ -34,6 +33,9 @@ export default function index() {
   } = useFetch(() => fetchMovies({ query: "" }));
 
   return (
+
+    
+    // <View style={{flex : 1, backgroundColor:"#1a0a2d" }}>  // CHANGE COLOR 
     <View style={styles.homestyle}>
       <ScrollView
         className="flex-1 px-5"
@@ -111,7 +113,7 @@ export default function index() {
 const styles = StyleSheet.create({
   homestyle: {
     flex: 1,
-    backgroundColor: "#2e144f",
+    backgroundColor: "#2e144f", // CHANGE
   },
   logo: {
     width: 55,
