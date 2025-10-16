@@ -1,4 +1,12 @@
-import { View, Text, Image, FlatList, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { images } from "@/constants/images";
 import MovieCard from "@/components/MovieCard";
@@ -7,9 +15,11 @@ import { fetchMovies } from "@/services/api";
 import { icons } from "@/constants/icons";
 import SearchBar from "@/components/SearchBar";
 import { updateSearchCount } from "@/services/appwrite";
+import { Sun, Moon } from "lucide-react-native"; // for icons
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [darkMode, setDarkMode] = useState(true);
 
   const {
     data: movies,
@@ -42,8 +52,30 @@ const Search = () => {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
+  // theme colors
+  const backgroundColor = darkMode ? "#2e144f" : "#ffffff";
+  const textColor = darkMode ? "#ffffff" : "#000000";
+
   return (
-    <View className="flex-1" style={{ backgroundColor: "#2e144f" }}>
+    <View className="flex-1" style={{ backgroundColor }}>
+      {/* Toggle Button */}
+      <View className="absolute right-5 top-14 z-50">
+        <TouchableOpacity
+          onPress={() => setDarkMode(!darkMode)}
+          style={{
+            backgroundColor: darkMode ? "#ffffff22" : "#00000010",
+            borderRadius: 20,
+            padding: 10,
+          }}
+        >
+          {darkMode ? (
+            <Sun size={22} color="#fff" />
+          ) : (
+            <Moon size={22} color="#000" />
+          )}
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={movies}
         renderItem={({ item }) => <MovieCard {...item} />}
@@ -59,9 +91,9 @@ const Search = () => {
         ListHeaderComponent={
           <>
             <View className="w-full flex-row justify-center mt-20 items-center">
-              <Image source={icons.logo} className="mt-6 h-12 w-14 " />
+              <Image source={icons.logo} style={styles.logoImg} />
             </View>
-            <View className="my-5">
+            <View className="my-1">
               <SearchBar
                 placeholder="Search 2000+ movies..."
                 value={searchQuery}
@@ -86,7 +118,10 @@ const Search = () => {
               !error &&
               searchQuery.trim() &&
               movies?.length! > 0 && (
-                <Text className="text-xl text-white font-bold">
+                <Text
+                  style={{ color: textColor }}
+                  className="text-xl font-bold px-5"
+                >
                   Search Results for{" "}
                   <Text className="text-accent">{searchQuery}</Text>
                 </Text>
@@ -96,7 +131,10 @@ const Search = () => {
         ListEmptyComponent={
           !loading && !error ? (
             <View className="mt-10 px-5">
-              <Text className="text-center text-gray-500">
+              <Text
+                className="text-center"
+                style={{ color: darkMode ? "#aaa" : "#666" }}
+              >
                 {searchQuery.trim()
                   ? "No movies found"
                   : "Search for a movie..."}
@@ -110,3 +148,13 @@ const Search = () => {
 };
 
 export default Search;
+
+const styles = StyleSheet.create({
+  logoImg: {
+    width: 55,
+    height: 65,
+    marginRight: 300,
+    bottom: 59,
+    right: 20,
+  },
+});
