@@ -59,3 +59,4 @@ export const getTrendingMovies = async (): Promise<
     return undefined;
   }
 };
+
