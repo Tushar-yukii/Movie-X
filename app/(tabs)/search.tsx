@@ -66,6 +66,7 @@ const Search = () => {
             backgroundColor: darkMode ? "#ffffff22" : "#00000010",
             borderRadius: 20,
             padding: 10,
+            top: -30,
           }}
         >
           {darkMode ? (
@@ -93,7 +94,7 @@ const Search = () => {
             <View className="w-full flex-row justify-center mt-20 items-center">
               <Image source={icons.logo} style={styles.logoImg} />
             </View>
-            <View className="my-1">
+            <View className="bottom-10">
               <SearchBar
                 placeholder="Search 2000+ movies..."
                 value={searchQuery}

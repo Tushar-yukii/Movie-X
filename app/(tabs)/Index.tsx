@@ -33,9 +33,7 @@ export default function index() {
   } = useFetch(() => fetchMovies({ query: "" }));
 
   return (
-
-    
-    // <View style={{flex : 1, backgroundColor:"#1a0a2d" }}>  // CHANGE COLOR 
+    // <View style={{flex : 1, backgroundColor:"#1a0a2d" }}>  // CHANGE COLOR
     <View style={styles.homestyle}>
       <ScrollView
         className="flex-1 px-5"
@@ -44,6 +42,7 @@ export default function index() {
       >
         {/* REQURID CHANGES */}
         <Image source={icons.logo} style={styles.logo} />
+        <Image source={icons.person} style={styles.personLogo} />
 
         {moviesLoading || trendingLoading ? (
           <ActivityIndicator
@@ -54,7 +53,7 @@ export default function index() {
         ) : moviesError || trendingError ? (
           <Text>Error: {moviesError?.message || trendingError?.message}</Text>
         ) : (
-          <View className="flex-1 mt-5">
+          <View className="flex-1 mt-1 bottom-4">
             <SearchBar
               onPress={() => {
                 router.push("/search");
@@ -121,5 +120,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     // marginLeft: 1,
     marginRight: 100,
+  },
+  personLogo: {
+    width: 30,
+    height: 35,
+    marginTop: 1,
+    // marginLeft: 1,
+    marginLeft: 370,
+    bottom: 50,
   },
 });
