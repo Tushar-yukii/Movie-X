@@ -2,25 +2,28 @@ import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
 import { Tabs } from "expo-router";
 import React from "react";
-import { Image, ImageBackground, Text, View } from "react-native";
+import { Image, ImageBackground, Text, View, Platform } from "react-native";
+import { BlurView } from "expo-blur";
 
-const TabIcon = ({ focused, icons, title }: any) => {
+const TabIcon = ({ focused, icon, title }: any) => {
   if (focused) {
     return (
       <ImageBackground
         source={images.highlight}
-        className="flex flex-row w-full flex-1 min-w-[112px] min-h-16 mt-4 justify-center items-center rounded-full overflow-hidden"
+        imageStyle={{ resizeMode: "stretch" }}
+        className="flex flex-row px-4 py-2 justify-center items-center rounded-full overflow-hidden"
       >
-        <Image source={icons} tintColor="#151312" className="size-5" />
+        <Image source={icon} tintColor="#151312" className="size-5" />
         <Text className="text-secondary text-base font-semibold ml-2">
           {title}
         </Text>
       </ImageBackground>
     );
   }
+
   return (
-    <View className="size-full justify-center items-center mt-4 rounded-full">
-      <Image source={icons} tintColor="#A8B5DB" className="size-5" />
+    <View className="justify-center items-center">
+      <Image source={icon} tintColor="#A8B5DB" className="size-5" />
     </View>
   );
 };
@@ -30,63 +33,59 @@ const _layout = () => {
     <Tabs
       screenOptions={{
         tabBarShowLabel: false,
-        tabBarItemStyle: {
-          width: "100%",
-          height: "100%",
-          justifyContent: "center",
-          alignItems: "center",
-        },
-
+        headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#0f0d23",
-          borderRadius: 50,
-          marginHorizontal: 19,
-          marginBottom: 35,
-          height: 53,
           position: "absolute",
+          bottom: Platform.OS === "ios" ? 28 : 22,
+          left: 20,
+          right: 20,
+          height: 60,
+          borderRadius: 35,
           overflow: "hidden",
-          borderWidth: 0.5,
-          borderColor: "0f0d23",
+          borderWidth: 1,
+          borderColor: "rgba(255,255,255,0.1)",
+          backgroundColor: "transparent", // BlurView handles the background
+          elevation: 0, // no harsh shadows on Android
         },
+        tabBarBackground: () => (
+          <BlurView
+            intensity={70}
+            tint="dark"
+            style={{
+              flex: 1,
+              borderRadius: 35,
+              backgroundColor: "rgba(20,20,35,0.5)", // adds soft dark tint
+            }}
+          />
+        ),
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icons={icons.home} title="Home" />
+            <TabIcon focused={focused} icon={icons.home} title="Home" />
           ),
         }}
       />
+
       <Tabs.Screen
         name="search"
         options={{
           title: "Search",
-          headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icons={icons.search} title="Search" />
+            <TabIcon focused={focused} icon={icons.search} title="Search" />
           ),
         }}
       />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icons={icons.person} title="Profile" />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="saved"
         options={{
           title: "Saved",
-          headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icons={icons.save} title="Saved" />
+            <TabIcon focused={focused} icon={icons.save} title="Saved" />
           ),
         }}
       />
