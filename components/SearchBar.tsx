@@ -29,7 +29,7 @@ const SearchBar = ({ placeholder, onPress, value, onChangeText }: props) => {
 
       <View className="flex-row items-center py-2 mt-1">
         {/* Right-side category  */}
-        <TouchableOpacity className="bg-purple-400 px-5 py-2 rounded-2xl">
+        <TouchableOpacity className="bg-purple-400 px-3 py-3 rounded-2xl">
           <Text className="text-sm font-extrabold text-purple-950">MOVIES</Text>
         </TouchableOpacity>
       </View>
