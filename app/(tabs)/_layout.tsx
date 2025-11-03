@@ -36,7 +36,7 @@ const _layout = () => {
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          bottom: Platform.OS === "ios" ? 28 : 22,
+          bottom: Platform.OS === "ios" ? 28 : 30,
           left: 20,
           right: 20,
           height: 60,
@@ -44,7 +44,7 @@ const _layout = () => {
           overflow: "hidden",
           borderWidth: 1,
           borderColor: "rgba(255,255,255,0.1)",
-          backgroundColor: "transparent", // BlurView handles the background
+          backgroundColor: "transparent", 
           elevation: 0, // no harsh shadows on Android
         },
         tabBarBackground: () => (
@@ -54,7 +54,7 @@ const _layout = () => {
             style={{
               flex: 1,
               borderRadius: 35,
-              backgroundColor: "rgba(20,20,35,0.5)", // adds soft dark tint
+              backgroundColor: "rgba(20,20,35,0.5)", 
             }}
           />
         ),
