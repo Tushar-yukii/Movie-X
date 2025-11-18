@@ -1,6 +1,6 @@
 import SearchBar from "@/components/SearchBar";
 import { icons } from "@/constants/icons";
-import { images } from "@/constants/images";
+// import { images } from "@/constants/images";
 import {
   ActivityIndicator,
   FlatList,
