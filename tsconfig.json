@@ -3,9 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
   "include": [
@@ -13,6 +11,19 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "nativewind-env.d.ts"
-, "app/(tabs)/index.tsx", "app/Onboarding.jsx", "app/_layout.tsx", "app/movies/[id].tsx", "app/(tabs)/search.tsx", "app/(tabs)/saved.tsx", "app/(tabs)/profile.tsx", "app/(tabs)/_layout.tsx", "constants/images.ts", "constants/icons.ts", "interfaces/interfaces.d.ts", "types/images.d.ts", "components/SearchBar.tsx"  ]
+    "nativewind-env.d.ts",
+    "app/(tabs)/index.tsx",
+    "app/Onboarding.jsx",
+    "app/_layout.tsx",
+    "app/movies/[id].tsx",
+    "app/(tabs)/search.tsx",
+    "app/(tabs)/saved.tsx",
+    "app/(tabs)/profile.tsx",
+    "app/(tabs)/_layout.tsx",
+    "constants/images.ts",
+    "constants/icons.ts",
+    "interfaces/interfaces.d.ts",
+    "services/types/images.d.ts",
+    "components/SearchBar.tsx"
+  ]
 }

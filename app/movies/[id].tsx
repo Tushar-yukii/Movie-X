@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import useFetch from "@/services/useFetch";
 import { fetchMovieDetails } from "@/services/api";
@@ -33,7 +27,10 @@ const MovieDetails = () => {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center" style={{backgroundColor : "#2e144f"}}>
+      <View
+        className="flex-1 items-center justify-center"
+        style={{ backgroundColor: "#2e144f" }}
+      >
         <Text className="text-white">Loading...</Text>
       </View>
     );
@@ -48,7 +45,7 @@ const MovieDetails = () => {
   }
 
   return (
-    <View className="flex-1" style={{backgroundColor : "#2e144f"}}>
+    <View className="flex-1" style={{ backgroundColor: "#2e144f" }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 80 }}>
         <View>
           <Image
@@ -103,8 +100,7 @@ const MovieDetails = () => {
         <MovieInfo
           label="Production Companies"
           value={
-            movie?.production_companies?.map((c) => c.name).join(" - ") ||
-            "N/A"
+            movie?.production_companies?.map((c) => c.name).join(" - ") || "N/A"
           }
         />
       </ScrollView>

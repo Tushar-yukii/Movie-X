@@ -55,6 +55,7 @@ const Search = () => {
   // theme colors
   const backgroundColor = darkMode ? "#2e144f" : "#ffffff";
   const textColor = darkMode ? "#ffffff" : "#000000";
+  // const title = darkMode ? "#000000" : "#ffffff";
 
   return (
     <View className="flex-1" style={{ backgroundColor }}>
@@ -92,7 +93,7 @@ const Search = () => {
         ListHeaderComponent={
           <>
             <View className="w-full flex-row justify-center mt-20 items-center">
-              <Image source={icons.logo} style={styles.logoImg} />
+              <Image style={styles.logoImg} />
             </View>
             <View className="bottom-10">
               <SearchBar
