@@ -17,6 +17,8 @@ import SearchBar from "@/components/SearchBar";
 import { updateSearchCount } from "@/services/appwrite";
 import { Sun, Moon } from "lucide-react-native"; // for icons
 
+// error
+
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [darkMode, setDarkMode] = useState(true);
