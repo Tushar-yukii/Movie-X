@@ -1,11 +1,68 @@
-export const TMDB_CONFIG = {
-  BASE_URL: "https://api.themoviedb.org/3",
-  API_KEY: process.env.EXPO_PUBLIC_MOVIE_API_KEY,
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${process.env.EXPO_PUBLIC_MOVIE_API_KEY}`,
-  },
+const BASE_URL = "https://api.themoviedb.org/3";
+
+const API_TOKEN = process.env.EXPO_PUBLIC_MOVIE_API_KEY;
+
+if (!API_TOKEN) {
+  throw new Error("TMDB API key is missing");
+}
+
+//Shared request helper
+
+const tmdbFetch = async <T>(endpoint: string): Promise<T> => {
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: "GET",
+    headers: {
+      accept: "application/json",
+      Authorization: `Bearer ${API_TOKEN}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`TMDB Error: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
 };
+
+//Types
+
+export type Movie = {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  release_date?: string;
+  overview?: string;
+  vote_average?: number;
+};
+
+export type MovieDetails = Movie & {
+  id: number;
+  title: string;
+  overview?: string;
+  poster_path: string | null;
+  release_date?: string;
+
+  runtime?: number;
+  vote_average?: number;
+  vote_count?: number;
+
+  budget?: number;
+  revenue?: number;
+
+  genres?: {
+    id: number;
+    name: string;
+  }[];
+
+  production_companies?: {
+    id: number;
+    name: string;
+    logo_path: string | null;
+    origin_country: string;
+  }[];
+};
+
+// Fetch Movies (Search / Discover)
 
 export const fetchMovies = async ({
   query,
@@ -13,46 +70,24 @@ export const fetchMovies = async ({
   query: string;
 }): Promise<Movie[]> => {
   const endpoint = query
-    ? `${TMDB_CONFIG.BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-    : `${TMDB_CONFIG.BASE_URL}/discover/movie?sort_by=popularity.desc`;
+    ? `/search/movie?query=${encodeURIComponent(query)}`
+    : `/discover/movie?sort_by=popularity.desc`;
 
-  const response = await fetch(endpoint, {
-    method: "GET",
-    headers: TMDB_CONFIG.headers,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch movies: ${response.statusText}`);
-  }
-
-  const data = await response.json();
+  const data = await tmdbFetch<{ results: Movie[] }>(endpoint);
   return data.results;
 };
 
-export const fetchMovieDetails = async (
-  movieId: string
-): Promise<MovieDetails> => {
-  try {
-    const response = await fetch(
-      `${TMDB_CONFIG.BASE_URL}/movie/${movieId}?api_key=${TMDB_CONFIG.API_KEY}`,
-      {
-        method: "GET",
-        headers: TMDB_CONFIG.headers,
-      }
-    );
+//   Fetch Trending Movies
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch movie details: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error fetching movie details:", error);
-    throw error;
-  }
+export const fetchTrendingMovies = async (): Promise<Movie[]> => {
+  const data = await tmdbFetch<{ results: Movie[] }>("/trending/movie/day");
+  return data.results;
 };
 
+// Fetch Movie Details
 
-
-
+export const fetchMovieDetails = async (
+  movieId: string,
+): Promise<MovieDetails> => {
+  return tmdbFetch<MovieDetails>(`/movie/${movieId}`);
+};

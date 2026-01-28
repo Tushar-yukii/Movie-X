@@ -22,7 +22,7 @@ const MovieInfo = ({ label, value }: MovieInfoProps) => (
 const MovieDetails = () => {
   const { id } = useLocalSearchParams();
   const { data: movie, loading } = useFetch(() =>
-    fetchMovieDetails(id as string)
+    fetchMovieDetails(id as string),
   );
 
   if (loading) {
