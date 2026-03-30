@@ -1,51 +1,44 @@
-import {
-  View,
-  Text,
-  Image,
-  FlatList,
-  ActivityIndicator,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
-import React, { useEffect, useState } from "react";
+import type { Movie } from "@/services/api";
+import { useState, useEffect } from "react";
+
+import { View, Text, ActivityIndicator, FlatList, Image } from "react-native";
+
 import { images } from "@/constants/images";
-import MovieCard from "@/components/MovieCard";
+import { icons } from "@/constants/icons";
+
 import useFetch from "@/services/useFetch";
 import { fetchMovies } from "@/services/api";
-import { icons } from "@/constants/icons";
-import SearchBar from "@/components/SearchBar";
 import { updateSearchCount } from "@/services/appwrite";
-import { Sun, Moon } from "lucide-react-native"; // for icons
 
-// error
+import SearchBar from "@/components/SearchBar";
+import MovieDisplayCard from "@/components/MovieCard";
+import MovieCard from "@/components/MovieCard";
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [darkMode, setDarkMode] = useState(true);
 
   const {
-    data: movies,
+    data: movies = [],
     loading,
     error,
     refetch: loadMovies,
     reset,
-  } = useFetch(
-    () =>
-      fetchMovies({
-        query: searchQuery,
-      }),
-    false
-  );
+  } = useFetch(() => fetchMovies({ query: searchQuery }), false);
 
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+  };
+
+  // Debounced search effect
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
       if (searchQuery.trim()) {
         await loadMovies();
 
         // Call updateSearchCount only if there are results
-        if (movies?.length! > 0 && movies?.[0]) {
-          await updateSearchCount(searchQuery, movies[0]);
-        }
+       if (movies && movies.length > 0) {
+  await updateSearchCount(searchQuery, movies[0]);
+}
       } else {
         reset();
       }
@@ -54,56 +47,40 @@ const Search = () => {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
-  // theme colors
-  const backgroundColor = darkMode ? "#2e144f" : "#ffffff";
-  const textColor = darkMode ? "#ffffff" : "#000000";
-  // const title = darkMode ? "#000000" : "#ffffff";
-
   return (
-    <View className="flex-1" style={{ backgroundColor }}>
-      {/* Toggle Button */}
-      <View className="absolute right-5 top-14 z-50">
-        <TouchableOpacity
-          onPress={() => setDarkMode(!darkMode)}
-          style={{
-            backgroundColor: darkMode ? "#ffffff22" : "#00000010",
-            borderRadius: 20,
-            padding: 10,
-            top: -30,
-          }}
-        >
-          {darkMode ? (
-            <Sun size={22} color="#fff" />
-          ) : (
-            <Moon size={22} color="#000" />
-          )}
-        </TouchableOpacity>
-      </View>
+    <View className="flex-1 bg-indigo-950">
+      <Image
+        source={images.bg}
+        className="flex-1 absolute w-full z-0"
+        resizeMode="cover"
+      />
 
       <FlatList
-        data={movies}
-        renderItem={({ item }) => <MovieCard {...item} />}
-        keyExtractor={(item) => item.id.toString()}
         className="px-5"
+        data={movies as Movie[]}
+       keyExtractor={(item, index) => `${item.id}-${index}`}
+        renderItem={({ item }) => <MovieCard {...item} />}
         numColumns={3}
         columnWrapperStyle={{
-          justifyContent: "center",
+          justifyContent: "flex-start",
           gap: 16,
-          marginVertical: 15,
+          marginVertical: 16,
         }}
         contentContainerStyle={{ paddingBottom: 100 }}
         ListHeaderComponent={
           <>
             <View className="w-full flex-row justify-center mt-20 items-center">
-              <Image style={styles.logoImg} />
+              <Image source={icons.logo} className="w-12 h-10" />
             </View>
-            <View className="bottom-10">
+
+            <View className="my-5">
               <SearchBar
-                placeholder="Search 2000+ movies..."
+                placeholder="Search for a movie"
                 value={searchQuery}
-                onChangeText={(text: string) => setSearchQuery(text)}
+                onChangeText={handleSearch}
               />
             </View>
+
             {loading && (
               <ActivityIndicator
                 size="large"
@@ -113,19 +90,16 @@ const Search = () => {
             )}
 
             {error && (
-              <Text className="text-blue-500 px-5 my-3">
-                {" "}
-                Error : {error.message}
+              <Text className="text-red-500 px-5 my-3">
+                Error: {error.message}
               </Text>
             )}
+
             {!loading &&
               !error &&
               searchQuery.trim() &&
               movies?.length! > 0 && (
-                <Text
-                  style={{ color: textColor }}
-                  className="text-xl font-bold px-5"
-                >
+                <Text className="text-xl text-white font-bold">
                   Search Results for{" "}
                   <Text className="text-accent">{searchQuery}</Text>
                 </Text>
@@ -135,13 +109,10 @@ const Search = () => {
         ListEmptyComponent={
           !loading && !error ? (
             <View className="mt-10 px-5">
-              <Text
-                className="text-center"
-                style={{ color: darkMode ? "#aaa" : "#666" }}
-              >
+              <Text className="text-center text-gray-500">
                 {searchQuery.trim()
                   ? "No movies found"
-                  : "Search for a movie..."}
+                  : "Start typing to search for movies..."}
               </Text>
             </View>
           ) : null
@@ -152,13 +123,3 @@ const Search = () => {
 };
 
 export default Search;
-
-const styles = StyleSheet.create({
-  logoImg: {
-    width: 55,
-    height: 65,
-    marginRight: 300,
-    bottom: 59,
-    right: 20,
-  },
-});

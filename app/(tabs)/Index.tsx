@@ -1,30 +1,26 @@
 import SearchBar from "@/components/SearchBar";
 import { icons } from "@/constants/icons";
-// import { images } from "@/constants/images";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { fetchMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
 import MovieCard from "@/components/MovieCard";
-import { getTrendingMovies } from "@/services/appwrite";
 import TrendingCard from "@/components/TrendingCard";
+import useTrendingMovies from "@/services/useTrendingMovies"; // ✅ new import
 
-export default function index() {
+export default function Index() {
   const router = useRouter();
 
-  const {
-    data: trendingMovies,
-    loading: trendingLoading,
-    error: trendingError,
-  } = useFetch(getTrendingMovies);
+  // ✅ Replaced getTrendingMovies (Appwrite) with TMDB hook
+  const { trendingMovies, loading: trendingLoading, error: trendingError } = useTrendingMovies();
 
   const {
     data: movies,
@@ -33,52 +29,48 @@ export default function index() {
   } = useFetch(() => fetchMovies({ query: "" }));
 
   return (
-    // <View style={{flex : 1, backgroundColor:"#1a0a2d" }}>  // CHANGE COLOR
     <View style={styles.homestyle}>
       <ScrollView
         className="flex-1 px-5"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ minHeight: "100%", paddingBottom: 10 }}
       >
-        {/* REQURID CHANGES */}
-        <Image source={icons.logo} style={styles.logo} />
-        <Image source={icons.person} style={styles.personLogo} />
+        <Image source={icons.logo} style={styles.logo} contentFit="contain" />
+        <Image source={icons.person} style={styles.personLogo} contentFit="contain" />
 
         {moviesLoading || trendingLoading ? (
           <ActivityIndicator
             size="large"
-            color="#0000ff"
+            color="#AB8BFF"
             className="mt-10 self-center"
           />
         ) : moviesError || trendingError ? (
-          <Text>Error: {moviesError?.message || trendingError?.message}</Text>
+          <Text style={{ color: "white" }}>
+            Error: {moviesError?.message || trendingError?.message}
+          </Text>
         ) : (
           <View className="flex-1 mt-1 bottom-4">
             <SearchBar
-              onPress={() => {
-                router.push("/search");
-              }}
+              onPress={() => router.push("/search")}
               placeholder="Search across 2000+ Movies..."
             />
-            <View className=""></View>
 
-            {trendingMovies && (
+            {/* ✅ Trending — now from TMDB, 30 unique movies, no numbers */}
+            {trendingMovies.length > 0 && (
               <View className="mt-10">
-                <Text className="text-lg text-white font-bold mb-3 ml-3">
-                  Treading Movies
+                <Text className="text-lg text-white font-bold mb-3">
+                  Trending Movies
                 </Text>
-
-                {/* change */}
                 <FlatList
                   horizontal
-                  // pagingEnabled //  makes it snap like a carousel
                   showsHorizontalScrollIndicator={false}
+                  className="mb-4 mt-3"
                   data={trendingMovies}
-                  renderItem={({ item, index }) => (
-                    <TrendingCard movie={item} index={index} />
+                  contentContainerStyle={{ gap: 12 }}
+                  renderItem={({ item }) => (
+                    <TrendingCard movie={item} /> //  no index prop needed
                   )}
-                  keyExtractor={(item, index) => `${item.id}-${index}`}
-                  contentContainerStyle={{ paddingHorizontal: 16 }}
+                  keyExtractor={(item) => item.movie_id.toString()}
                 />
               </View>
             )}
@@ -87,10 +79,9 @@ export default function index() {
               <Text className="text-lg text-white font-bold mt-5 mb-3 ml-1">
                 Latest Movies
               </Text>
-
               <FlatList
                 data={movies}
-                renderItem={({ item }) => <MovieCard {...item} />}
+                renderItem={({ item }) => <MovieCard {...(item as any)} />}
                 keyExtractor={(item, index) => `${item.id}-${index}`}
                 numColumns={3}
                 columnWrapperStyle={{
@@ -109,23 +100,22 @@ export default function index() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   homestyle: {
     flex: 1,
-    backgroundColor: "#2e144f", // CHANGE
+    backgroundColor: "#0D0D1A",
   },
   logo: {
     width: 55,
     height: 65,
     marginTop: 10,
-    // marginLeft: 1,
     marginRight: 100,
   },
   personLogo: {
     width: 30,
     height: 35,
     marginTop: 1,
-    // marginLeft: 1,
     marginLeft: 370,
     bottom: 50,
   },

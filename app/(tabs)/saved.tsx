@@ -7,7 +7,7 @@ const Saved = () => {
     <View className=" flex-1 px-10" style={{ backgroundColor: "#2e144f" }}>
       <View className="flex justify-start items-start flex-1 gap-6 flex-col">
         <Image source={icons.save} className="size-10" tintColor="#fff" />
-        <Text className="text-gray-500 text-base">Save</Text>
+        <Text className="text-gray-500 text-base">myspace</Text>
       </View>
     </View>
   );

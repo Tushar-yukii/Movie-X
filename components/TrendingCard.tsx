@@ -1,116 +1,72 @@
-import React, { memo } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Link } from "expo-router";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 
-type Movie = {
-  movie_id: number;
-  title: string;
-  poster_url: string;
-  release_date?: string;
+type TrendingCardProps = {
+  movie: {
+    movie_id: number;
+    title: string;
+    poster_url: string | null;
+    release_date: string | null;
+  };
 };
 
-type Props = {
-  movie: Movie;
-  index: number;
-};
-
-const TrendingCard = ({ movie }: Props) => {
-  const { movie_id, poster_url, title, release_date } = movie;
-
+const TrendingCard = ({
+  movie: { movie_id, title, poster_url, release_date },
+}: TrendingCardProps) => {
   return (
-    <View style={styles.card}>
-      <Link href={`/movies/${movie_id}`} asChild>
-        <TouchableOpacity activeOpacity={0.85}>
-          <Image
-            source={{
-              uri: poster_url.startsWith("http")
-                ? poster_url
-                : `https://image.tmdb.org/t/p/w500${poster_url}`,
-            }}
-            style={styles.image}
-          />
-
-          <Text style={styles.title} numberOfLines={1}>
-            {title}
+    <Link
+      href={{
+        pathname: "/movies/[id]",
+        params: { id: movie_id.toString() },
+      }}
+      asChild
+    >
+      <TouchableOpacity style={styles.card} activeOpacity={0.75}>
+        <Image
+          source={
+            poster_url
+              ? { uri: poster_url }
+              : { uri: "https://placehold.co/300x450/1a1a1a/FFFFFF.png" }
+          }
+          style={styles.poster}
+          contentFit="cover"
+        />
+        <Text style={styles.title} numberOfLines={2}>
+          {title}
+        </Text>
+        <View className="flex-row items-center justify-between">
+          <Text className="text-xs text-slate-500 font-medium mt-1">
+            {release_date?.split("-")[0]}
           </Text>
-
-          <Text style={styles.year}>
-            {release_date ? release_date.split("-")[0] : "—"}
+          <Text className="text-xs font-medium text-light-300 uppercase">
+            Movie
           </Text>
-        </TouchableOpacity>
-      </Link>
-    </View>
+        </View>
+      </TouchableOpacity>
+    </Link>
   );
 };
 
-export default memo(TrendingCard); // performance boost
+export default TrendingCard;
 
 const styles = StyleSheet.create({
   card: {
-    width: 150,
-    marginRight: 16,
+    width: 120,
+    marginRight: 12,
   },
-  image: {
-    height: 220,
-    borderRadius: 14,
-    backgroundColor: "#222",
+  poster: {
+    width: 120,
+    height: 180,
+    borderRadius: 12,
+    backgroundColor: "#1A1A2E",
   },
   title: {
-    color: "white",
-    fontWeight: "700",
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "600",
     marginTop: 6,
-    fontSize: 13,
-  },
-  year: {
-    color: "#aaa",
-    fontSize: 11,
-    marginTop: 2,
   },
 });
 
-// // sample code
-// import { Link } from "expo-router";
-// import MaskedView from "@react-native-masked-view/masked-view";
-// import { View, Text, TouchableOpacity, Image } from "react-native";
 
-// import { images } from "@/constants/images";
-
-// const TrendingCard = ({
-//   movie: { movie_id, title, poster_url },
-//   index,
-// }: TrendingCardProps) => {
-//   return (
-//     <Link href={`/movie/${movie_id}`} asChild>
-//       <TouchableOpacity className="w-32 relative pl-5">
-//         <Image
-//           source={{ uri: poster_url }}
-//           className="w-32 h-48 rounded-lg"
-//           resizeMode="cover"
-//         />
-
-//         <View className="absolute bottom-9 -left-3.5 px-2 py-1 rounded-full">
-//           <MaskedView
-//             maskElement={
-//               <Text className="font-bold text-white text-6xl">{index + 1}</Text>
-//             }
-//           >
-//             <Image
-//               source={images.rankingGradient}
-//               className="size-14"
-//               resizeMode="cover"
-//             />
-//           </MaskedView>
-//         </View>
-
-//         <Text
-//           className="text-sm font-bold mt-2 text-light-200"
-//           numberOfLines={2}
-//         >
-//           {title}
-//         </Text>
-//       </TouchableOpacity>
-//     </Link>
-//   );
-// };
-
-// export default TrendingCard;

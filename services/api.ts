@@ -78,10 +78,14 @@ export const fetchMovies = async ({
 };
 
 //   Fetch Trending Movies
-
+// Fetch Trending Movies — 25 to 30 unique results
 export const fetchTrendingMovies = async (): Promise<Movie[]> => {
-  const data = await tmdbFetch<{ results: Movie[] }>("/trending/movie/day");
-  return data.results;
+  const [page1, page2, page3] = await Promise.all([
+    tmdbFetch<{ results: Movie[] }>("/trending/movie/week?page=1"),
+    tmdbFetch<{ results: Movie[] }>("/trending/movie/week?page=2"),
+    tmdbFetch<{ results: Movie[] }>("/trending/movie/week?page=3"),
+  ]);
+  return [...page1.results, ...page2.results, ...page3.results].slice(0, 50);
 };
 
 // Fetch Movie Details
