@@ -26,6 +26,14 @@ const tmdbFetch = async <T>(endpoint: string): Promise<T> => {
 
 //Types
 
+export type AnimeResult = {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  first_air_date? : string;
+}
+
+
 export type Movie = {
   id: number;
   title: string;
@@ -77,8 +85,25 @@ export const fetchMovies = async ({
   return data.results;
 };
 
+
+// fetch tredinganime  
+export const fetchTrendingAnime = async () : Promise<AnimeResult[]> => {
+  const [page1 , page2 , page3] = await Promise.all([
+    tmdbFetch<{results : AnimeResult[]}>(
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=1"
+    ),
+    tmdbFetch<{results: AnimeResult[] }> (
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=2"
+    ),
+    tmdbFetch<{results: AnimeResult[] }> (
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=3"
+    ),
+  ])
+  return [...page1.results, ...page2.results, ...page3.results].slice(0, 50);
+}
+
 //   Fetch Trending Movies
-// Fetch Trending Movies — 25 to 30 unique results
+// Fetch Trending Movies — 25 to 50 unique results
 export const fetchTrendingMovies = async (): Promise<Movie[]> => {
   const [page1, page2, page3] = await Promise.all([
     tmdbFetch<{ results: Movie[] }>("/trending/movie/week?page=1"),
