@@ -24,15 +24,25 @@ const tmdbFetch = async <T>(endpoint: string): Promise<T> => {
   return response.json();
 };
 
-//Types
+// top part slider images
+export type HeroAnime = {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  first_air_date?: string;
+  genre_ids?: number[];
+  episode_run_time?: number;
+  overview?: string;
+};
 
+//Types
 export type AnimeResult = {
   id: number;
   name: string;
   poster_path: string | null;
-  first_air_date? : string;
-}
-
+  first_air_date?: string;
+};
 
 export type Movie = {
   id: number;
@@ -85,22 +95,29 @@ export const fetchMovies = async ({
   return data.results;
 };
 
+// top rated anime for hero slider
+export const fetchHeroAnime = async (): Promise<HeroAnime[]> => {
+  const data = await tmdbFetch<{ results: HeroAnime[] }>(
+    "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=vote_average.desc&vote_count.gte=500&page=1",
+  );
+  return data.results.slice(0, 15);
+};
 
-// fetch tredinganime  
-export const fetchTrendingAnime = async () : Promise<AnimeResult[]> => {
-  const [page1 , page2 , page3] = await Promise.all([
-    tmdbFetch<{results : AnimeResult[]}>(
-      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=1"
+// fetch tredinganime
+export const fetchTrendingAnime = async (): Promise<AnimeResult[]> => {
+  const [page1, page2, page3] = await Promise.all([
+    tmdbFetch<{ results: AnimeResult[] }>(
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=1",
     ),
-    tmdbFetch<{results: AnimeResult[] }> (
-      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=2"
+    tmdbFetch<{ results: AnimeResult[] }>(
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=2",
     ),
-    tmdbFetch<{results: AnimeResult[] }> (
-      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=3"
+    tmdbFetch<{ results: AnimeResult[] }>(
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=3",
     ),
-  ])
+  ]);
   return [...page1.results, ...page2.results, ...page3.results].slice(0, 50);
-}
+};
 
 //   Fetch Trending Movies
 // Fetch Trending Movies — 25 to 50 unique results
