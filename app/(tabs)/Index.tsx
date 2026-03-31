@@ -14,13 +14,24 @@ import { fetchMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
 import MovieCard from "@/components/MovieCard";
 import TrendingCard from "@/components/TrendingCard";
-import useTrendingMovies from "@/services/useTrendingMovies"; // ✅ new import
-
+import useTrendingMovies from "@/services/useTrendingMovies"; //  new import
+import AnimeCard from "@/components/AnimeCard";
+import useTrendingAnime from "@/services/useTrendingAnime";
 export default function Index() {
   const router = useRouter();
 
-  // ✅ Replaced getTrendingMovies (Appwrite) with TMDB hook
-  const { trendingMovies, loading: trendingLoading, error: trendingError } = useTrendingMovies();
+  const {
+    trendingAnime,
+    loading: animeLoading,
+    error: animeError,
+  } = useTrendingAnime();
+
+  // Replaced getTrendingMovies (Appwrite) with TMDB hook
+  const {
+    trendingMovies,
+    loading: trendingLoading,
+    error: trendingError,
+  } = useTrendingMovies();
 
   const {
     data: movies,
@@ -36,17 +47,24 @@ export default function Index() {
         contentContainerStyle={{ minHeight: "100%", paddingBottom: 10 }}
       >
         <Image source={icons.logo} style={styles.logo} contentFit="contain" />
-        <Image source={icons.person} style={styles.personLogo} contentFit="contain" />
+        <Image
+          source={icons.person}
+          style={styles.personLogo}
+          contentFit="contain"
+        />
 
-        {moviesLoading || trendingLoading ? (
+        {moviesLoading || trendingLoading || animeLoading ? (
           <ActivityIndicator
             size="large"
             color="#AB8BFF"
             className="mt-10 self-center"
           />
-        ) : moviesError || trendingError ? (
+        ) : moviesError || trendingError || animeError ? (
           <Text style={{ color: "white" }}>
-            Error: {moviesError?.message || trendingError?.message}
+            Error:{" "}
+            {moviesError?.message ||
+              trendingError?.message ||
+              animeError?.message}
           </Text>
         ) : (
           <View className="flex-1 mt-1 bottom-4">
@@ -55,7 +73,26 @@ export default function Index() {
               placeholder="Search across 2000+ Movies..."
             />
 
-            {/* ✅ Trending — now from TMDB, 30 unique movies, no numbers */}
+            {/* trending anime   */}
+
+            {trendingAnime.length > 0 && (
+              <View className="mt-10">
+                <Text className="text-lg text-white font-bold mb-3">
+                  Trending Anime
+                </Text>
+                <FlatList
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  className="mb-4 mt-3"
+                  data={trendingAnime}
+                  contentContainerStyle={{ gap: 0.1 }}
+                  renderItem={({ item }) => <AnimeCard anime={item} />}
+                  keyExtractor={(item) => item.anime_id.toString()}
+                />
+              </View>
+            )}
+
+            {/*  Trendingmovie — now from TMDB, 30 unique movies, no numbers */}
             {trendingMovies.length > 0 && (
               <View className="mt-10">
                 <Text className="text-lg text-white font-bold mb-3">
@@ -66,7 +103,7 @@ export default function Index() {
                   showsHorizontalScrollIndicator={false}
                   className="mb-4 mt-3"
                   data={trendingMovies}
-                  contentContainerStyle={{ gap: 12 }}
+                  contentContainerStyle={{ gap: 0.1 }}
                   renderItem={({ item }) => (
                     <TrendingCard movie={item} /> //  no index prop needed
                   )}
@@ -76,6 +113,7 @@ export default function Index() {
             )}
 
             <>
+              {/* letest movie */}
               <Text className="text-lg text-white font-bold mt-5 mb-3 ml-1">
                 Latest Movies
               </Text>

@@ -53,7 +53,7 @@ export default TrendingCard;
 const styles = StyleSheet.create({
   card: {
     width: 120,
-    marginRight: 12,
+    marginRight: 6,
   },
   poster: {
     width: 120,
