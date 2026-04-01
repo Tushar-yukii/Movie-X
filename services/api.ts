@@ -87,12 +87,29 @@ export const fetchMovies = async ({
 }: {
   query: string;
 }): Promise<Movie[]> => {
-  const endpoint = query
-    ? `/search/movie?query=${encodeURIComponent(query)}`
-    : `/discover/movie?sort_by=popularity.desc`;
+  if (query) {
+    // Search only needs 1 page
+    const data = await tmdbFetch<{ results: Movie[] }>(
+      `/search/movie?query=${encodeURIComponent(query)}`,
+    );
+    return data.results;
+  }
+  const [p1, p2, p3, p4] = await Promise.all([
+    tmdbFetch<{ results: Movie[] }>(
+      "/discover/movie?sort_by=popularity.desc&page=1",
+    ),
+    tmdbFetch<{ results: Movie[] }>(
+      "/discover/movie?sort_by=popularity.desc&page=2",
+    ),
+    tmdbFetch<{ results: Movie[] }>(
+      "/discover/movie?sort_by=popularity.desc&page=3",
+    ),
+    tmdbFetch<{ results: Movie[] }>(
+      "/discover/movie?sort_by=popularity.desc&page=4",
+    ),
+  ]);
 
-  const data = await tmdbFetch<{ results: Movie[] }>(endpoint);
-  return data.results;
+  return [...p1.results, ...p2.results, ...p3.results, ...p4.results];
 };
 
 // top rated anime for hero slider

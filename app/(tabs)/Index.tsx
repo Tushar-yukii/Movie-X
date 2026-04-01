@@ -2,7 +2,6 @@ import { icons } from "@/constants/icons";
 import {
   ActivityIndicator,
   FlatList,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -20,43 +19,122 @@ import useTrendingMovies from "@/services/useTrendingMovies";
 import useTrendingAnime from "@/services/useTrendingAnime";
 import useHeroAnime from "@/services/useHeroAnime";
 import { LinearGradient } from "expo-linear-gradient";
+import { memo, useCallback } from "react";
+
+// Memoized MovieCard wrapper — prevents unnecessary re-renders
+// useCallback on renderItem is critical — without it FlatList
+// gets a new function reference every render and re-renders all items
+const MemoMovieCard = memo(({ item }: { item: any }) => (
+  <MovieCard {...item} />
+));
+
 export default function Index() {
   const router = useRouter();
 
   const { slides, loading: heroLoading } = useHeroAnime();
+  const { trendingAnime, loading: animeLoading, error: animeError } = useTrendingAnime();
+  const { trendingMovies, loading: trendingLoading, error: trendingError } = useTrendingMovies();
+  const { data: movies, loading: moviesLoading, error: moviesError } = useFetch(
+    () => fetchMovies({ query: "" })
+  );
 
-  const {
-    trendingAnime,
-    loading: animeLoading,
-    error: animeError,
-  } = useTrendingAnime();
-
-  const {
-    trendingMovies,
-    loading: trendingLoading,
-    error: trendingError,
-  } = useTrendingMovies();
-
-  const {
-    data: movies,
-    loading: moviesLoading,
-    error: moviesError,
-  } = useFetch(() => fetchMovies({ query: "" }));
-
-  const isLoading =
-    heroLoading || animeLoading || trendingLoading || moviesLoading;
+  const isLoading = heroLoading || animeLoading || trendingLoading || moviesLoading;
   const isError = animeError || trendingError || moviesError;
+
+  // useCallback prevents new function reference on every render
+  const renderMovieCard = useCallback(
+    ({ item }: { item: any }) => <MemoMovieCard item={item} />,
+    []
+  );
+
+  const keyExtractor = useCallback(
+    (item: any, index: number) => `${item.id}-${index}`,
+    []
+  );
+
+  // ListHeaderComponent — everything above the movie grid
+  // This is the key trick: HeroSlider, Anime, Movies sections
+  // all become the "header" of one single FlatList
+  // So React Native only renders what's visible on screen
+  const ListHeader = useCallback(() => {
+    if (isLoading) {
+      return (
+        <ActivityIndicator
+          size="large"
+          color="#AB8BFF"
+          style={{ marginTop: 120 }}
+        />
+      );
+    }
+
+    if (isError) {
+      return (
+        <Text style={styles.errorText}>
+          Error: {animeError?.message || trendingError?.message || moviesError?.message}
+        </Text>
+      );
+    }
+
+    return (
+      <>
+        {/* Hero Slider */}
+        <HeroSlider slides={slides} />
+
+        {/* Trending Anime */}
+        {trendingAnime.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Trending Anime</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={trendingAnime}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
+              renderItem={({ item }) => <AnimeCard anime={item} />}
+              keyExtractor={(item) => item.anime_id.toString()}
+              decelerationRate="fast"
+              // Only render cards close to visible area
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={3}
+            />
+          </View>
+        )}
+
+        {/* Trending Movies */}
+        {trendingMovies.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Trending Movies</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={trendingMovies}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
+              renderItem={({ item }) => <TrendingCard movie={item} />}
+              keyExtractor={(item) => item.movie_id.toString()}
+              decelerationRate="fast"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={3}
+            />
+          </View>
+        )}
+
+        {/* Latest Movies title */}
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
+          Latest Movies
+        </Text>
+      </>
+    );
+  }, [isLoading, isError, slides, trendingAnime, trendingMovies]);
 
   return (
     <View style={styles.container}>
-      {/* ── Top Bar floats over hero slider    */}
+      {/* Top bar floats over everything */}
       <View style={styles.topBar}>
         <LinearGradient
           colors={["rgba(0,0,0,0.55)", "transparent"]}
           style={styles.topBarGradientBg}
         />
-        {/* Person icon — left */}
-
         <TouchableOpacity
           onPress={() => router.push("/(tabs)/profile")}
           style={styles.personCircle}
@@ -68,8 +146,6 @@ export default function Index() {
             tintColor="#FFFFFF"
           />
         </TouchableOpacity>
-
-        {/* Search icon — right */}
         <TouchableOpacity
           onPress={() => router.push("/search")}
           style={styles.searchCircle}
@@ -82,85 +158,38 @@ export default function Index() {
           />
         </TouchableOpacity>
       </View>
-      <ScrollView
+
+      {/* Single FlatList for entire screen
+          Why? FlatList uses virtualisation — only renders
+          cards visible on screen + small buffer around them
+          80 cards but only ~12 render at a time = smooth scroll */}
+      <FlatList
+        data={isLoading || isError ? [] : movies}
+        renderItem={renderMovieCard}
+        keyExtractor={keyExtractor}
+        numColumns={4}
+        columnWrapperStyle={{
+          justifyContent: "space-between",
+          paddingHorizontal: 12,
+          marginBottom: 10,
+        }}
+        ListHeaderComponent={ListHeader}
         showsVerticalScrollIndicator={false}
-        // smooth momentum scrolling on iOS
-        decelerationRate="normal"
         contentContainerStyle={{ paddingBottom: 100 }}
-      >
-        {isLoading ? (
-          <ActivityIndicator
-            size="large"
-            color="#AB8BFF"
-            style={{ marginTop: 120 }}
-          />
-        ) : isError ? (
-          <Text style={styles.errorText}>
-            Error:{" "}
-            {animeError?.message ||
-              trendingError?.message ||
-              moviesError?.message}
-          </Text>
-        ) : (
-          <>
-            {/* Hero Slider — full width, auto slides every 4s
-                No padding here because we want it edge-to-edge */}
-            <HeroSlider slides={slides} />
-
-            {/* Trending Anime Section */}
-            {trendingAnime.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Trending Anime</Text>
-                <FlatList
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  data={trendingAnime}
-                  // gap:12 gives spacing between cards
-                  contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-                  renderItem={({ item }) => <AnimeCard anime={item} />}
-                  keyExtractor={(item) => item.anime_id.toString()}
-                  // smooth deceleration when user swipes cards
-                  decelerationRate="fast"
-                />
-              </View>
-            )}
-
-            {/* Trending Movies Section */}
-            {trendingMovies.length > 0 && (
-              <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Trending Movies</Text>
-                <FlatList
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  data={trendingMovies}
-                  contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-                  renderItem={({ item }) => <TrendingCard movie={item} />}
-                  keyExtractor={(item) => item.movie_id.toString()}
-                  decelerationRate="fast"
-                />
-              </View>
-            )}
-
-            {/* Latest Movies Grid */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Latest Movies</Text>
-              <FlatList
-                data={movies}
-                renderItem={({ item }) => <MovieCard {...(item as any)} />}
-                keyExtractor={(item, index) => `${item.id}-${index}`}
-                numColumns={3}
-                columnWrapperStyle={{
-                  justifyContent: "flex-start",
-                  gap: 20,
-                  paddingHorizontal: 16,
-                  marginBottom: 10,
-                }}
-                scrollEnabled={false}
-              />
-            </View>
-          </>
-        )}
-      </ScrollView>
+        //  Performance props
+        // initialNumToRender — only render 8 cards on first load
+        initialNumToRender={8}
+        // maxToRenderPerBatch — render 8 more cards per scroll batch
+        maxToRenderPerBatch={8}
+        // windowSize — keep 5 screen heights of cards in memory
+        // cards outside this range are unmounted to free memory
+        windowSize={5}
+        // removeClippedSubviews — unmount cards that are off screen
+        removeClippedSubviews={true}
+        // updateCellsBatchingPeriod — wait 50ms between render batches
+        // prevents UI thread from being blocked
+        updateCellsBatchingPeriod={50}
+      />
     </View>
   );
 }
@@ -170,7 +199,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#0D0D1A",
   },
-  // Floats over the hero slider at the top
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -184,7 +212,6 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
   },
-
   topBarGradientBg: {
     position: "absolute",
     top: 0,
@@ -192,55 +219,34 @@ const styles = StyleSheet.create({
     right: 0,
     height: 110,
   },
-  // frosted glass circle
   personCircle: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "rgba(99, 120, 255, 0.35)", // blue-purple semi transparent fill
+    backgroundColor: "rgba(99, 120, 255, 0.35)",
     borderWidth: 2,
-    borderColor: "rgba(140, 160, 255, 0.9)", // bright blue outer border
+    borderColor: "rgba(140, 160, 255, 0.9)",
     justifyContent: "center",
     alignItems: "center",
-    // inner dark ring effect using shadow
     shadowColor: "#6378FF",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
     shadowRadius: 8,
-    elevation: 8, // Android glow
-  },
-  //  Icon image only — no background, no borderRadius
-  iconImg: {
-    width: 18,
-    height: 18,
-  },
-  avatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "rgba(200, 102, 241, 20)", // blue
-    padding: 6,
-  },
-  searchBtn: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.1)", // subtle background on icon
-  },
-  searchImg: {
-    width: 22,
-    height: 22,
-    borderRadius: 25,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    elevation: 8,
   },
   searchCircle: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: "rgba(255,255,255,0.08)", // barely visible fill
+    backgroundColor: "rgba(255,255,255,0.08)",
     borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.35)", // white subtle border
+    borderColor: "rgba(255,255,255,0.35)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  iconImg: {
+    width: 18,
+    height: 18,
   },
   section: {
     marginTop: 24,

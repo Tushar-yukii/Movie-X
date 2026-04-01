@@ -24,7 +24,9 @@ const HeroSlider = ({ slides }: Props) => {
   const flatListRef = useRef<FlatList>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const directionRef = useRef<"forward" | "backward">("forward");
+
+  // No directionRef needed anymore — simple loop always forward
+  // nextIndexRef tracks position without causing re-render
   const nextIndexRef = useRef<number>(0);
 
   const stopAutoSlide = useCallback(() => {
@@ -36,30 +38,30 @@ const HeroSlider = ({ slides }: Props) => {
 
     intervalRef.current = setInterval(() => {
       const prev = nextIndexRef.current;
-      let next = prev;
 
-      if (directionRef.current === "forward") {
-        if (prev >= slides.length - 1) {
-          directionRef.current = "backward";
-          next = prev - 1;
-        } else {
-          next = prev + 1;
-        }
-      } else {
-        if (prev <= 0) {
-          directionRef.current = "forward";
-          next = prev + 1;
-        } else {
-          next = prev - 1;
-        }
-      }
+      // Simple modulo loop — always goes forward
+      // When prev = 14 (last), (14+1) % 15 = 0 → jumps to first
+      // When prev = 0, (0+1) % 15 = 1 → goes to second
+      // Always left to right, loops back to start when done
+      const next = (prev + 1) % slides.length;
 
       nextIndexRef.current = next;
 
-      flatListRef.current?.scrollToOffset({
-        offset: width * next,
-        animated: true,
-      });
+      // When jumping from last → first, scroll without animation
+      // This makes it feel like a seamless loop not a sudden jump
+      if (prev === slides.length - 1) {
+        // Last slide → first slide: instant jump, no animation
+        flatListRef.current?.scrollToOffset({
+          offset: 0,
+          animated: false, // no animation on loop back — feels seamless
+        });
+      } else {
+        // Normal forward scroll — smooth animation
+        flatListRef.current?.scrollToOffset({
+          offset: width * next,
+          animated: true,
+        });
+      }
     }, SLIDE_INTERVAL);
   }, [slides.length]);
 
@@ -69,6 +71,7 @@ const HeroSlider = ({ slides }: Props) => {
     return () => stopAutoSlide();
   }, [startAutoSlide, stopAutoSlide]);
 
+  // Only updates dot/title after scroll fully stops
   const onMomentumScrollEnd = useCallback((event: any) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / width);
     nextIndexRef.current = index;
@@ -118,7 +121,6 @@ const HeroSlider = ({ slides }: Props) => {
         onScrollEndDrag={startAutoSlide}
       />
 
-      {/* Info overlay on top of image */}
       <View style={styles.infoOverlay}>
         <Text style={styles.title} numberOfLines={2}>
           {currentSlide.title}
@@ -129,7 +131,6 @@ const HeroSlider = ({ slides }: Props) => {
           Anime
         </Text>
 
-        {/* Action buttons */}
         <View style={styles.actionsRow}>
           <TouchableOpacity style={styles.sideAction}>
             <Text style={styles.sideIcon}>＋</Text>
@@ -146,7 +147,7 @@ const HeroSlider = ({ slides }: Props) => {
               })
             }
           >
-            <Text style={styles.watchText}>▶ Watch Now</Text>
+            <Text style={styles.watchText}>▶  Watch Now</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: "center",
     letterSpacing: 0.5,
-    marginBottom: 16, // ✅ increased since dots removed, gives breathing room before buttons
+    marginBottom: 16,
   },
   actionsRow: {
     flexDirection: "row",
