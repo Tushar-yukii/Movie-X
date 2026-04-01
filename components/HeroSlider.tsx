@@ -1,5 +1,4 @@
-// components/HeroSlider.tsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,7 +6,6 @@ import {
   StyleSheet,
   Dimensions,
   FlatList,
-  ViewToken,
 } from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,21 +13,10 @@ import { useRouter } from "expo-router";
 import { HeroSlide } from "@/services/useHeroAnime";
 
 const { width, height } = Dimensions.get("window");
-const SLIDE_INTERVAL = 4000; // 4 seconds
+const SLIDE_INTERVAL = 5000;
 
 type Props = {
   slides: HeroSlide[];
-};
-
-const GENRE_MAP: Record<number, string> = {
-  16: "Animation",
-  28: "Action",
-  12: "Adventure",
-  35: "Comedy",
-  18: "Drama",
-  14: "Fantasy",
-  27: "Horror",
-  10765: "Sci-Fi",
 };
 
 const HeroSlider = ({ slides }: Props) => {
@@ -37,33 +24,56 @@ const HeroSlider = ({ slides }: Props) => {
   const flatListRef = useRef<FlatList>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const directionRef = useRef<"forward" | "backward">("forward");
+  const nextIndexRef = useRef<number>(0);
 
-  // Auto-slide every 4 seconds
-  useEffect(() => {
-    if (slides.length === 0) return;
+  const stopAutoSlide = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  }, []);
+
+  const startAutoSlide = useCallback(() => {
+    stopAutoSlide();
 
     intervalRef.current = setInterval(() => {
-      setActiveIndex((prev) => {
-        const next = (prev + 1) % slides.length;
-        flatListRef.current?.scrollToIndex({ index: next, animated: true });
-        return next;
+      const prev = nextIndexRef.current;
+      let next = prev;
+
+      if (directionRef.current === "forward") {
+        if (prev >= slides.length - 1) {
+          directionRef.current = "backward";
+          next = prev - 1;
+        } else {
+          next = prev + 1;
+        }
+      } else {
+        if (prev <= 0) {
+          directionRef.current = "forward";
+          next = prev + 1;
+        } else {
+          next = prev - 1;
+        }
+      }
+
+      nextIndexRef.current = next;
+
+      flatListRef.current?.scrollToOffset({
+        offset: width * next,
+        animated: true,
       });
     }, SLIDE_INTERVAL);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
   }, [slides.length]);
 
-  const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-        setActiveIndex(viewableItems[0].index);
-      }
-    }
-  ).current;
+  useEffect(() => {
+    if (slides.length === 0) return;
+    startAutoSlide();
+    return () => stopAutoSlide();
+  }, [startAutoSlide, stopAutoSlide]);
 
-  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const onMomentumScrollEnd = useCallback((event: any) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / width);
+    nextIndexRef.current = index;
+    setActiveIndex(index);
+  }, []);
 
   if (slides.length === 0) return null;
 
@@ -85,26 +95,30 @@ const HeroSlider = ({ slides }: Props) => {
 
   return (
     <View style={styles.container}>
-      {/* Sliding images */}
       <FlatList
         ref={flatListRef}
         data={slides}
         horizontal
         pagingEnabled
+        decelerationRate="fast"
+        snapToInterval={width}
+        snapToAlignment="start"
+        disableIntervalMomentum={true}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderSlide}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
+        onMomentumScrollEnd={onMomentumScrollEnd}
         scrollEventThrottle={16}
         getItemLayout={(_, index) => ({
           length: width,
           offset: width * index,
           index,
         })}
+        onScrollBeginDrag={stopAutoSlide}
+        onScrollEndDrag={startAutoSlide}
       />
 
-      {/* Title + Meta overlaid on top of slider */}
+      {/* Info overlay on top of image */}
       <View style={styles.infoOverlay}>
         <Text style={styles.title} numberOfLines={2}>
           {currentSlide.title}
@@ -115,25 +129,13 @@ const HeroSlider = ({ slides }: Props) => {
           Anime
         </Text>
 
-        {/* Dot indicators */}
-        <View style={styles.dotsRow}>
-          {slides.map((_, i) => (
-            <View
-              key={i}
-              style={[styles.dot, i === activeIndex && styles.dotActive]}
-            />
-          ))}
-        </View>
-
         {/* Action buttons */}
         <View style={styles.actionsRow}>
-          {/* Save */}
           <TouchableOpacity style={styles.sideAction}>
             <Text style={styles.sideIcon}>＋</Text>
             <Text style={styles.sideLabel}>Save</Text>
           </TouchableOpacity>
 
-          {/* Watch Now */}
           <TouchableOpacity
             style={styles.watchBtn}
             activeOpacity={0.85}
@@ -144,10 +146,9 @@ const HeroSlider = ({ slides }: Props) => {
               })
             }
           >
-            <Text style={styles.watchText}>▶  Watch Now</Text>
+            <Text style={styles.watchText}>▶ Watch Now</Text>
           </TouchableOpacity>
 
-          {/* Info */}
           <TouchableOpacity
             style={styles.sideAction}
             onPress={() =>
@@ -212,23 +213,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: "center",
     letterSpacing: 0.5,
-    marginBottom: 10,
-  },
-  dotsRow: {
-    flexDirection: "row",
-    gap: 6,
-    marginBottom: 14,
-  },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#5A5A7A",
-  },
-  dotActive: {
-    width: 20,
-    backgroundColor: "#6C63FF",
-    borderRadius: 3,
+    marginBottom: 16, // ✅ increased since dots removed, gives breathing room before buttons
   },
   actionsRow: {
     flexDirection: "row",
