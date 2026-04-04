@@ -71,6 +71,16 @@ const _layout = () => {
       />
 
       <Tabs.Screen
+        name="movieHome"
+        options={{
+          title: "Series",
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon={icons.home} title="Series" />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="search"
         options={{
           title: "Search",
