@@ -17,7 +17,7 @@ type SeriesCardProps = {
 
 const SeriesCard = ({ series }: SeriesCardProps) => {
   const { series_id, title, poster_url, release_date } = series;
-
+// error
   return (
     <Link
       href={{

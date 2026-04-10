@@ -29,7 +29,7 @@ export default function WebSeriesScreen() {
     error,
   } = useWebSeriesPage();
 
-  // ✅ Memoized renderItem — prevents re-renders
+  // Memoized renderItem — prevents re-renders
   const renderSeriesCard = useCallback(
     ({ item }: { item: any }) => <MemoSeriesCard item={item} />,
     []
@@ -51,7 +51,7 @@ export default function WebSeriesScreen() {
     );
   }
 
-  // ✅ ListHeaderComponent — hero slider + all 3 horizontal sections
+  //  ListHeaderComponent — hero slider + all 3 horizontal sections
   // Same pattern as home page — everything is header of one FlatList
   // So the page scrolls as one smooth unit
   const ListHeader = () => (

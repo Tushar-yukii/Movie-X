@@ -120,7 +120,7 @@ const HeroSlider = ({ slides }: Props) => {
         onScrollBeginDrag={stopAutoSlide}
         onScrollEndDrag={startAutoSlide}
       />
-
+      {/* error */}
       <View style={styles.infoOverlay}>
         <Text style={styles.title} numberOfLines={2}>
           {currentSlide.title}
@@ -147,7 +147,7 @@ const HeroSlider = ({ slides }: Props) => {
               })
             }
           >
-            <Text style={styles.watchText}>▶  Watch Now</Text>
+            <Text style={styles.watchText}>▶ Watch Now</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

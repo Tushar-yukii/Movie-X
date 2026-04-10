@@ -69,7 +69,7 @@ const _layout = () => {
           ),
         }}
       />
-
+      {/* error */}
       <Tabs.Screen
         name="movieHome"
         options={{
