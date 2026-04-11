@@ -17,9 +17,10 @@ const SLIDE_INTERVAL = 5000;
 
 type Props = {
   slides: HeroSlide[];
+  label?: string;
 };
 
-const HeroSlider = ({ slides }: Props) => {
+const HeroSlider = ({ slides, label = "Series" }: Props) => {
   const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -128,7 +129,7 @@ const HeroSlider = ({ slides }: Props) => {
         <Text style={styles.meta}>
           {currentSlide.year}
           {currentSlide.year ? "  |  " : ""}
-          Anime
+          {label}
         </Text>
 
         <View style={styles.actionsRow}>

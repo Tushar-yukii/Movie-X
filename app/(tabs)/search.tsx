@@ -32,7 +32,7 @@ const Search = () => {
     setSearchQuery(text);
   };
 
-  // 🧠 Debounced search — waits 500ms after user stops typing
+  // Debounced search — waits 500ms after user stops typing
   // before making API call. Prevents calling API on every keystroke
   // Example: user types "Naruto" → API called once after pause
   // not 6 times for N-a-r-u-t-o

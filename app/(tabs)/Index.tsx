@@ -4,14 +4,16 @@ import {
   FlatList,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { fetchMovies } from "@/services/api";
 import useFetch from "@/services/useFetch";
-import MovieCard from "@/components/MovieCard";
 import TrendingCard from "@/components/TrendingCard";
 import AnimeCard from "@/components/AnimeCard";
 import HeroSlider from "@/components/HeroSlider";
@@ -19,43 +21,74 @@ import useTrendingMovies from "@/services/useTrendingMovies";
 import useTrendingAnime from "@/services/useTrendingAnime";
 import useHeroAnime from "@/services/useHeroAnime";
 import { LinearGradient } from "expo-linear-gradient";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 
-// Memoized MovieCard wrapper — prevents unnecessary re-renders
-// useCallback on renderItem is critical — without it FlatList
-// gets a new function reference every render and re-renders all items
-const MemoMovieCard = memo(({ item }: { item: any }) => (
-  <MovieCard {...item} />
+// 🧠 MemoTrendingCard — only re-renders when props change
+const MemoTrendingCard = memo(({ item }: { item: any }) => (
+  <TrendingCard movie={item} />
 ));
 
 export default function Index() {
   const router = useRouter();
 
-  const { slides, loading: heroLoading } = useHeroAnime();
-  const { trendingAnime, loading: animeLoading, error: animeError } = useTrendingAnime();
-  const { trendingMovies, loading: trendingLoading, error: trendingError } = useTrendingMovies();
-  const { data: movies, loading: moviesLoading, error: moviesError } = useFetch(
-    () => fetchMovies({ query: "" })
-  );
+  // Search state
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
-  const isLoading = heroLoading || animeLoading || trendingLoading || moviesLoading;
+  // Data hooks
+  const { slides, loading: heroLoading } = useHeroAnime();
+  const {
+    trendingAnime,
+    loading: animeLoading,
+    error: animeError,
+  } = useTrendingAnime();
+  const {
+    trendingMovies,
+    loading: trendingLoading,
+    error: trendingError,
+  } = useTrendingMovies();
+
+  // fetchMovies with no query = popular/discover movies
+  // Used for Popular Movies horizontal row
+  const {
+    data: movies,
+    loading: moviesLoading,
+    error: moviesError,
+  } = useFetch(() => fetchMovies({ query: "" }));
+
+  const isLoading =
+    heroLoading || animeLoading || trendingLoading || moviesLoading;
   const isError = animeError || trendingError || moviesError;
 
-  // useCallback prevents new function reference on every render
-  const renderMovieCard = useCallback(
-    ({ item }: { item: any }) => <MemoMovieCard item={item} />,
-    []
-  );
+  // Search handlers
+  const handleSearch = async (text: string) => {
+    setSearchQuery(text);
+    if (text.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setSearchLoading(true);
+    try {
+      const results = await fetchMovies({ query: text });
+      setSearchResults(results);
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
-  const keyExtractor = useCallback(
-    (item: any, index: number) => `${item.id}-${index}`,
-    []
-  );
+  const closeSearch = () => {
+    setSearchVisible(false);
+    setSearchQuery("");
+    setSearchResults([]);
+  };
 
-  // ListHeaderComponent — everything above the movie grid
-  // This is the key trick: HeroSlider, Anime, Movies sections
-  // all become the "header" of one single FlatList
-  // So React Native only renders what's visible on screen
+  // ListHeader contains ALL sections
+  // movies added to dependency array so Popular Movies
+  // section updates when movies data loads
   const ListHeader = useCallback(() => {
     if (isLoading) {
       return (
@@ -70,7 +103,10 @@ export default function Index() {
     if (isError) {
       return (
         <Text style={styles.errorText}>
-          Error: {animeError?.message || trendingError?.message || moviesError?.message}
+          Error:{" "}
+          {animeError?.message ||
+            trendingError?.message ||
+            moviesError?.message}
         </Text>
       );
     }
@@ -78,7 +114,7 @@ export default function Index() {
     return (
       <>
         {/* Hero Slider */}
-        <HeroSlider slides={slides} />
+        <HeroSlider slides={slides} label="Anime" />
 
         {/* Trending Anime */}
         {trendingAnime.length > 0 && (
@@ -92,7 +128,6 @@ export default function Index() {
               renderItem={({ item }) => <AnimeCard anime={item} />}
               keyExtractor={(item) => item.anime_id.toString()}
               decelerationRate="fast"
-              // Only render cards close to visible area
               initialNumToRender={4}
               maxToRenderPerBatch={4}
               windowSize={3}
@@ -119,17 +154,49 @@ export default function Index() {
           </View>
         )}
 
-        {/* Latest Movies title */}
-        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>
-          Latest Movies
-        </Text>
+        {/* Popular Movies — horizontal scroll
+            Maps movies (Movie type) → TrendingCard shape
+            TrendingCard expects: movie_id, title, poster_url, release_date
+            Movie type has:       id,       title, poster_path, release_date
+            So we map the shape difference here                              */}
+        {movies && movies.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Popular Movies</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={movies}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
+              renderItem={({ item }) => (
+                <TrendingCard
+                  movie={{
+                    movie_id: item.id,
+                    title: item.title,
+                    poster_url: item.poster_path
+                      ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                      : null,
+                    release_date: item.release_date ?? null,
+                  }}
+                />
+              )}
+              keyExtractor={(item, index) => `popular-${item.id}-${index}`}
+              decelerationRate="fast"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={3}
+            />
+          </View>
+        )}
+
+        {/* Bottom spacing so last row isn't hidden by tab bar */}
+        <View style={{ height: 24 }} />
       </>
     );
-  }, [isLoading, isError, slides, trendingAnime, trendingMovies]);
+  }, [isLoading, isError, slides, trendingAnime, trendingMovies, movies]);
 
   return (
     <View style={styles.container}>
-      {/* Top bar floats over everything */}
+      {/* Top Bar */}
       <View style={styles.topBar}>
         <LinearGradient
           colors={["rgba(0,0,0,0.55)", "transparent"]}
@@ -147,7 +214,7 @@ export default function Index() {
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => router.push("/search")}
+          onPress={() => setSearchVisible(true)}
           style={styles.searchCircle}
         >
           <Image
@@ -159,37 +226,107 @@ export default function Index() {
         </TouchableOpacity>
       </View>
 
-      {/* Single FlatList for entire screen
-          Why? FlatList uses virtualisation — only renders
-          cards visible on screen + small buffer around them
-          80 cards but only ~12 render at a time = smooth scroll */}
+      {/* Single FlatList — data=[] because everything
+          is inside ListHeaderComponent
+          No more numColumns or grid layout              */}
       <FlatList
-        data={isLoading || isError ? [] : movies}
-        renderItem={renderMovieCard}
-        keyExtractor={keyExtractor}
-        numColumns={4}
-        columnWrapperStyle={{
-          justifyContent: "space-between",
-          paddingHorizontal: 12,
-          marginBottom: 10,
-        }}
+        data={[]}
+        renderItem={null}
         ListHeaderComponent={ListHeader}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
-        //  Performance props
-        // initialNumToRender — only render 8 cards on first load
-        initialNumToRender={8}
-        // maxToRenderPerBatch — render 8 more cards per scroll batch
-        maxToRenderPerBatch={8}
-        // windowSize — keep 5 screen heights of cards in memory
-        // cards outside this range are unmounted to free memory
-        windowSize={5}
-        // removeClippedSubviews — unmount cards that are off screen
-        removeClippedSubviews={true}
-        // updateCellsBatchingPeriod — wait 50ms between render batches
-        // prevents UI thread from being blocked
-        updateCellsBatchingPeriod={50}
       />
+
+      {/* Inline Search Overlay */}
+      {searchVisible && (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.searchOverlay}
+        >
+          <View style={styles.searchInputRow}>
+            <Image
+              source={icons.search}
+              style={styles.searchInputIcon}
+              contentFit="contain"
+              tintColor="#6B7280"
+            />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search movies, anime..."
+              placeholderTextColor="#6B7280"
+              value={searchQuery}
+              onChangeText={handleSearch}
+              autoFocus={true}
+              returnKeyType="search"
+              autoCapitalize="none"
+            />
+            <TouchableOpacity onPress={closeSearch}>
+              <Text style={styles.closeBtn}>✕</Text>
+            </TouchableOpacity>
+          </View>
+
+          {searchLoading && (
+            <ActivityIndicator color="#6C63FF" style={{ marginTop: 24 }} />
+          )}
+
+          {!searchLoading && searchQuery.length < 2 && (
+            <Text style={styles.noResults}>Start typing to search...</Text>
+          )}
+
+          {!searchLoading &&
+            searchQuery.length >= 2 &&
+            searchResults.length === 0 && (
+              <Text style={styles.noResults}>
+                No results found for "{searchQuery}"
+              </Text>
+            )}
+
+          {!searchLoading && searchResults.length > 0 && (
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item) => item.id.toString()}
+              contentContainerStyle={{ paddingBottom: 100 }}
+              keyboardShouldPersistTaps="handled"
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.resultRow}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    closeSearch();
+                    router.push({
+                      pathname: "/movies/[id]",
+                      params: { id: item.id.toString() },
+                    });
+                  }}
+                >
+                  <Image
+                    source={{
+                      uri: item.poster_path
+                        ? `https://image.tmdb.org/t/p/w92${item.poster_path}`
+                        : "https://placehold.co/92x138/1a1a1a/FFFFFF.png",
+                    }}
+                    style={styles.resultPoster}
+                    contentFit="cover"
+                  />
+                  <View style={styles.resultInfo}>
+                    <Text style={styles.resultTitle} numberOfLines={2}>
+                      {item.title}
+                    </Text>
+                    <View style={styles.resultMeta}>
+                      <Text style={styles.resultYear}>
+                        {item.release_date?.split("-")[0] ?? "—"}
+                      </Text>
+                      <View style={styles.metaDot} />
+                      <Text style={styles.resultType}>Movie</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          )}
+        </KeyboardAvoidingView>
+      )}
     </View>
   );
 }
@@ -262,5 +399,93 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 20,
     marginTop: 120,
+  },
+  searchOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#0D0D1A",
+    zIndex: 20,
+    paddingTop: Platform.OS === "ios" ? 56 : 48,
+  },
+  searchInputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#1A1A2E",
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  searchInputIcon: {
+    width: 18,
+    height: 18,
+  },
+  searchInput: {
+    flex: 1,
+    color: "#FFFFFF",
+    fontSize: 15,
+    paddingVertical: 0,
+  },
+  closeBtn: {
+    color: "#6B7280",
+    fontSize: 18,
+    paddingHorizontal: 4,
+  },
+  resultRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 12,
+  },
+  resultPoster: {
+    width: 52,
+    height: 78,
+    borderRadius: 6,
+    backgroundColor: "#1A1A2E",
+  },
+  resultInfo: {
+    flex: 1,
+  },
+  resultTitle: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  resultMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  resultYear: {
+    color: "#6B7280",
+    fontSize: 12,
+  },
+  metaDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: "#6B7280",
+  },
+  resultType: {
+    color: "#6B7280",
+    fontSize: 12,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    marginHorizontal: 16,
+  },
+  noResults: {
+    color: "#6B7280",
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 40,
   },
 });
