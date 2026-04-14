@@ -51,7 +51,7 @@ export default SeriesCard;
 
 const styles = StyleSheet.create({
   card: {
-    width: 120,
+    width:104,
     marginRight: 12,
   },
   poster: {

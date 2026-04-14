@@ -76,7 +76,7 @@ const useWebSeriesPage = (): UseWebSeriesPageReturn => {
       try {
         setLoading(true);
 
-        // ✅ All 4 API calls fire simultaneously — much faster
+        // All 4 API calls fire simultaneously — much faster
         const [popular, trending, completed, upcoming] = await Promise.all([
           fetchPopularWebSeries(),
           fetchTrendingWebSeries(),

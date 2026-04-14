@@ -53,7 +53,7 @@ export type Movie = {
   vote_average?: number;
 };
 
-// web series 
+// web series
 export type WebSeries = {
   id: number;
   name: string;
@@ -167,12 +167,11 @@ export const fetchMovieDetails = async (
   return tmdbFetch<MovieDetails>(`/movie/${movieId}`);
 };
 
-
 // 1. Popular Web Series — for hero slider (15 slides)
 // Fetches from Netflix, Prime, Disney+ sorted by popularity
 export const fetchPopularWebSeries = async (): Promise<WebSeries[]> => {
   const data = await tmdbFetch<{ results: WebSeries[] }>(
-    "/discover/tv?sort_by=popularity.desc&with_watch_providers=8|9|119|337&watch_region=IN&page=1"
+    "/discover/tv?sort_by=popularity.desc&with_watch_providers=8|9|119|337&watch_region=IN&page=1",
   );
   return data.results.filter((s) => s.backdrop_path).slice(0, 15);
 };
@@ -184,7 +183,7 @@ export const fetchTrendingWebSeries = async (): Promise<WebSeries[]> => {
     tmdbFetch<{ results: WebSeries[] }>("/trending/tv/week?page=2"),
     tmdbFetch<{ results: WebSeries[] }>("/trending/tv/week?page=3"),
   ]);
-  return [...p1.results, ...p2.results, ...p3.results].slice(0, 50);
+  return [...p1.results, ...p2.results, ...p3.results].slice(0, 10);
 };
 
 // 3. Recently Completed Web Series
@@ -192,17 +191,17 @@ export const fetchTrendingWebSeries = async (): Promise<WebSeries[]> => {
 // last_air_date range — aired in last 6 months and ended
 export const fetchRecentlyCompletedSeries = async (): Promise<WebSeries[]> => {
   const data = await tmdbFetch<{ results: WebSeries[] }>(
-    "/discover/tv?sort_by=popularity.desc&with_status=3&with_watch_providers=8|9|119|337&watch_region=IN&page=1"
+    "/discover/tv?sort_by=popularity.desc&with_status=3&with_watch_providers=8|9|119|337&watch_region=IN&page=1",
   );
   // with_status=3 means "Ended" on TMDB
-  return data.results.slice(0, 40);
+  return data.results.slice(0, 10);
 };
 
 // 4. Upcoming / In Production Web Series
 // with_status=2 means "In Production" — not yet aired
 export const fetchUpcomingWebSeries = async (): Promise<WebSeries[]> => {
   const data = await tmdbFetch<{ results: WebSeries[] }>(
-    "/discover/tv?sort_by=popularity.desc&with_status=2&with_watch_providers=8|9|119|337&watch_region=IN&page=1"
+    "/discover/tv?sort_by=popularity.desc&with_status=2&with_watch_providers=8|9|119|337&watch_region=IN&page=1",
   );
-  return data.results.slice(0, 40);
+  return data.results.slice(0, 10);
 };
