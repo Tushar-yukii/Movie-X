@@ -205,3 +205,28 @@ export const fetchUpcomingWebSeries = async (): Promise<WebSeries[]> => {
   );
   return data.results.slice(0, 10);
 };
+
+// top rated movies - 15 sliders
+export const fetchTopRatedMovies = async (): Promise<Movie[]> => {
+  const data = await tmdbFetch<{ results: Movie[] }>(
+    "/discover/movie?sort_by=vote_average.desc&vote_count.gte=1000&page=1",
+  );
+  return data.results.filter((m) => m.poster_path).slice(0, 15);
+};
+
+// popular movies movies page has its own independent data
+export const fetchPopularMovies = async (): Promise<Movie[]> => {
+  const [p1, p2] = await Promise.all([
+    tmdbFetch<{ results: Movie[] }>("/movie/popular?page=1"),
+    tmdbFetch<{ results: Movie[] }>("/movie/popular?page=2"),
+  ]);
+  return [...p1.results, ...p2.results].slice(0, 30);
+};
+
+
+// Top 10 Movies — highest rated all time
+// This is the "Top Movies" row with only 10 items
+export const fetchTop10Movies = async (): Promise<Movie[]> => {
+  const data = await tmdbFetch<{ results: Movie[] }>("/movie/top_rated?page=1");
+  return data.results.slice(0, 10); // exactly 10
+};
