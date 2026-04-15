@@ -1,4 +1,4 @@
-// app/(tabs)/search.tsx — now Web Series page
+// 3td button show - top rated trending , popular movies
 
 import {
   ActivityIndicator,
@@ -6,33 +6,32 @@ import {
   StyleSheet,
   Text,
   View,
-  Platform,
 } from "react-native";
 import { memo, useCallback } from "react";
-// import useWebSeriesPage from "@/services/useWebSeriesPage";
+import useMoviesPage from "@/services/useMoviesPage";
 import HeroSlider from "@/components/HeroSlider";
-import SeriesCard from "@/components/SeriesCard";
-import useWebSeriesPage from "@/services/useWebSeriespage";
+import TrendingCard from "@/components/TrendingCard";
 import TopBar from "@/components/TopBar";
 
-// Memoized SeriesCard for horizontal rows
-const MemoSeriesCard = memo(({ item }: { item: any }) => (
-  <SeriesCard series={item} />
+// MemoMovieCard — prevents unnecessary re-renders
+// on horizontal scroll
+const MemoMovieCard = memo(({ item }: { item: any }) => (
+  <TrendingCard movie={item} />
 ));
 
-export default function WebSeriesScreen() {
+export default function MoviesScreen() {
   const {
     heroSlides,
-    trendingSeries,
-    recentlyCompleted,
-    upcomingSeries,
+    trendingMovies,
+    popularMovies,
+    top10Movies,
     loading,
     error,
-  } = useWebSeriesPage();
+  } = useMoviesPage();
 
-  // Memoized renderItem — prevents re-renders
-  const renderSeriesCard = useCallback(
-    ({ item }: { item: any }) => <MemoSeriesCard item={item} />,
+  // Stable renderItem — no new function reference on re-render
+  const renderMovieCard = useCallback(
+    ({ item }: { item: any }) => <MemoMovieCard item={item} />,
     [],
   );
 
@@ -52,25 +51,26 @@ export default function WebSeriesScreen() {
     );
   }
 
-  //  ListHeaderComponent — hero slider + all 3 horizontal sections
-  // Same pattern as home page — everything is header of one FlatList
-  // So the page scrolls as one smooth unit
+  // All sections inside ListHeaderComponent
+  // Same pattern as home + web series pages
+  // One FlatList scrolls everything smoothly
   const ListHeader = () => (
     <>
-      {/* Hero Slider — 15 popular web series, auto slides */}
-      <HeroSlider slides={heroSlides} />
+      {/* Hero Slider — 15 top rated movies
+          label="Movie" shows "Movie" instead of "Anime"/"Series" */}
+      <HeroSlider slides={heroSlides} label="Movie" />
 
-      {/* Trending Web Series */}
-      {trendingSeries.length > 0 && (
+      {/* Trending Movies */}
+      {trendingMovies.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Trending Web Series</Text>
+          <Text style={styles.sectionTitle}>Trending Movies</Text>
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            data={trendingSeries}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-            renderItem={renderSeriesCard}
-            keyExtractor={(item) => item.series_id.toString()}
+            data={trendingMovies}
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
+            renderItem={renderMovieCard}
+            keyExtractor={(item) => `trending-${item.movie_id}`}
             decelerationRate="fast"
             initialNumToRender={4}
             maxToRenderPerBatch={4}
@@ -79,17 +79,17 @@ export default function WebSeriesScreen() {
         </View>
       )}
 
-      {/* Recently Completed */}
-      {recentlyCompleted.length > 0 && (
+      {/* Popular Movies */}
+      {popularMovies.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recently Completed</Text>
+          <Text style={styles.sectionTitle}>Popular Movies</Text>
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            data={recentlyCompleted}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-            renderItem={renderSeriesCard}
-            keyExtractor={(item) => `completed-${item.series_id}`}
+            data={popularMovies}
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
+            renderItem={renderMovieCard}
+            keyExtractor={(item) => `popular-${item.movie_id}`}
             decelerationRate="fast"
             initialNumToRender={4}
             maxToRenderPerBatch={4}
@@ -98,17 +98,22 @@ export default function WebSeriesScreen() {
         </View>
       )}
 
-      {/* Upcoming Web Series */}
-      {upcomingSeries.length > 0 && (
+      {/* Top 10 Movies — exactly 10 item */}
+      {top10Movies.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Web Series</Text>
+          <Text style={styles.sectionTitle}>Top Movies</Text>
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            data={upcomingSeries}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-            renderItem={renderSeriesCard}
-            keyExtractor={(item) => `upcoming-${item.series_id}`}
+            data={top10Movies}
+            contentContainerStyle={{ paddingHorizontal: 16, gap: 1 }}
+            renderItem={({ item, index }) => (
+              //  Wrapper View to add ranking number badge
+              <View style={styles.rankedCard}>
+                <TrendingCard movie={item} />
+              </View>
+            )}
+            keyExtractor={(item) => `top10-${item.movie_id}`}
             decelerationRate="fast"
             initialNumToRender={4}
             maxToRenderPerBatch={4}
@@ -117,16 +122,16 @@ export default function WebSeriesScreen() {
         </View>
       )}
 
-      {/* Bottom spacing */}
       <View style={{ height: 24 }} />
     </>
   );
 
   return (
+    
     <View style={styles.container}>
-      <TopBar />
+        <TopBar />
       <FlatList
-        data={[]} // empty — all content is in ListHeader
+        data={[]}
         renderItem={null}
         ListHeaderComponent={ListHeader}
         showsVerticalScrollIndicator={false}
@@ -161,5 +166,16 @@ const styles = StyleSheet.create({
     color: "#EF4444",
     fontSize: 14,
     textAlign: "center",
+  },
+  // Ranked card wrapper 
+  rankedCard: {
+    position: "relative",
+    marginRight: 1,
+  },
+
+  rankNumber: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "800",
   },
 });

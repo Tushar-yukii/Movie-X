@@ -48,6 +48,7 @@ export type Movie = {
   id: number;
   title: string;
   poster_path: string | null;
+  backdrop_path: string | null;
   release_date?: string;
   overview?: string;
   vote_average?: number;
@@ -64,6 +65,16 @@ export type WebSeries = {
   overview?: string;
   status?: string;
 };
+
+export type AnimeItem = {
+  id: number;
+  name: string;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  first_air_date?: string;
+  overview?: string;
+};
+
 
 export type MovieDetails = Movie & {
   id: number;

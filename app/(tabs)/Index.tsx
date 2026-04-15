@@ -22,6 +22,7 @@ import useTrendingAnime from "@/services/useTrendingAnime";
 import useHeroAnime from "@/services/useHeroAnime";
 import { LinearGradient } from "expo-linear-gradient";
 import { memo, useCallback, useState } from "react";
+import TopBar from "@/components/TopBar";
 
 // 🧠 MemoTrendingCard — only re-renders when props change
 const MemoTrendingCard = memo(({ item }: { item: any }) => (
@@ -196,35 +197,8 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      {/* Top Bar */}
-      <View style={styles.topBar}>
-        <LinearGradient
-          colors={["rgba(0,0,0,0.55)", "transparent"]}
-          style={styles.topBarGradientBg}
-        />
-        <TouchableOpacity
-          onPress={() => router.push("/(tabs)/profile")}
-          style={styles.personCircle}
-        >
-          <Image
-            source={icons.person}
-            style={styles.iconImg}
-            contentFit="contain"
-            tintColor="#FFFFFF"
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => setSearchVisible(true)}
-          style={styles.searchCircle}
-        >
-          <Image
-            source={icons.search}
-            style={styles.iconImg}
-            contentFit="contain"
-            tintColor="#FFFFFF"
-          />
-        </TouchableOpacity>
-      </View>
+      {/* topbar */}
+      <TopBar onSearchPress={() => setSearchVisible(true)} />
 
       {/* Single FlatList — data=[] because everything
           is inside ListHeaderComponent
