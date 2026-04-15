@@ -66,6 +66,7 @@ export type WebSeries = {
   status?: string;
 };
 
+// anime page
 export type AnimeItem = {
   id: number;
   name: string;
@@ -74,7 +75,6 @@ export type AnimeItem = {
   first_air_date?: string;
   overview?: string;
 };
-
 
 export type MovieDetails = Movie & {
   id: number;
@@ -234,10 +234,30 @@ export const fetchPopularMovies = async (): Promise<Movie[]> => {
   return [...p1.results, ...p2.results].slice(0, 30);
 };
 
-
 // Top 10 Movies — highest rated all time
 // This is the "Top Movies" row with only 10 items
 export const fetchTop10Movies = async (): Promise<Movie[]> => {
   const data = await tmdbFetch<{ results: Movie[] }>("/movie/top_rated?page=1");
   return data.results.slice(0, 10); // exactly 10
+};
+
+// top rated anime
+export const fetchTopRatedAnime = async (): Promise<AnimeItem[]> => {
+  const data = await tmdbFetch<{ results: AnimeItem[] }>(
+    "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=vote_average.desc&vote_count.gte=200&page=1",
+  );
+  return data.results.filter((a) => a.backdrop_path).slice(0, 15);
+};
+
+// trending anime
+export const fetchTrendingAnimeList = async (): Promise<AnimeItem[]> => {
+  const [p1, p2] = await Promise.all([
+    tmdbFetch<{ results: AnimeItem[] }>(
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=1",
+    ),
+    tmdbFetch<{ results: AnimeItem[] }>(
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&page=2",
+    ),
+  ]);
+  return [...p1.results, ...p2.results].slice(0, 10);
 };
