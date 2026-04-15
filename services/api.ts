@@ -261,3 +261,24 @@ export const fetchTrendingAnimeList = async (): Promise<AnimeItem[]> => {
   ]);
   return [...p1.results, ...p2.results].slice(0, 10);
 };
+
+// popular anime
+export const fetchPopularAnime = async (): Promise<AnimeItem[]> => {
+  const [p1, p2] = await Promise.all([
+    tmdbFetch<{ results: AnimeItem[] }>(
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&first_air_date.gte=2020-01-01&page=1",
+    ),
+    tmdbFetch<{ results: AnimeItem[] }>(
+      "/discover/tv?with_genres=16&with_origin_country=JP&sort_by=popularity.desc&first_air_date.gte=2020-01-01&page=2",
+    ),
+  ]);
+  return [...p1.results, ...p2.results].slice(0, 10);
+};
+
+// upcoming anime
+export const fetchUpcomingAnime = async (): Promise<AnimeItem[]> => {
+  const data = await tmdbFetch<{ results: AnimeItem[] }>(
+    "/discover/tv?with_genres=16&with_origin_country=JP&with_status=2&sort_by=popularity.desc&page=1",
+  );
+  return data.results.slice(0, 10);
+};
