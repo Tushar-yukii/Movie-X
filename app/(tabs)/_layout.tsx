@@ -69,7 +69,7 @@ const _layout = () => {
           ),
         }}
       />
-  
+
       <Tabs.Screen
         name="movieHome"
         options={{
@@ -89,6 +89,15 @@ const _layout = () => {
           ),
         }}
       />
+      <Tabs.Screen
+        name="Anime"
+        options={{
+          title: "Anime",
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon={icons.home} title="Anime" />
+          ),
+        }}
+      />
 
       <Tabs.Screen
         name="search"
@@ -96,16 +105,6 @@ const _layout = () => {
           title: "Search",
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon={icons.search} title="Search" />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-        name="saved"
-        options={{
-          title: "Saved",
-          tabBarIcon: ({ focused }) => (
-            <TabIcon focused={focused} icon={icons.save} title="Saved" />
           ),
         }}
       />

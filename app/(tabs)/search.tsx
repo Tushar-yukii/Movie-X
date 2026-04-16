@@ -105,7 +105,7 @@ const Search = () => {
           keyExtractor={(item, index) => `${item.id}-${index}`}
           contentContainerStyle={{ paddingBottom: 120 }}
           keyboardShouldPersistTaps="handled"
-          // 🧠 Thin dashed separator line between results
+          // Thin dashed separator line between results
           // exactly like Image 2's dividers
           ItemSeparatorComponent={() => <View style={styles.separator} />}
           renderItem={({ item }) => (
