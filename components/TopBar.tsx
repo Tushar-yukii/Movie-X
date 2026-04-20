@@ -9,14 +9,17 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { icons } from "@/constants/icons";
 
+type SearchTab = "Series" | "Movies" | "Anime";
+
 type Props = {
   onSearchPress?: () => void;
+  searchTab?: SearchTab;
+};
   // onSearchPress is still optional
   // Home page passes its own function (inline overlay)
   // Other pages don't pass anything → default behavior kicks in
-};
 
-const TopBar = ({ onSearchPress }: Props) => {
+const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
   const router = useRouter();
 
   // Default search behavior — navigate to search tab
@@ -30,7 +33,10 @@ const TopBar = ({ onSearchPress }: Props) => {
     } else {
       // No custom function passed — use default behavior
       // Navigate to search tab so user can type and search
-      router.push("/(tabs)/search");
+      router.push({
+        pathname: "/search-page",
+        params: { defaultTab: searchTab },
+      });
     }
   };
 
@@ -56,10 +62,7 @@ const TopBar = ({ onSearchPress }: Props) => {
       {/* Now uses handleSearchPress instead of onSearchPress directly
           handleSearchPress checks if custom function exists
           if yes → use it, if no → navigate to search tab */}
-      <TouchableOpacity
-        onPress={handleSearchPress}
-        style={styles.searchCircle}
-      >
+      <TouchableOpacity onPress={handleSearchPress} style={styles.searchCircle}>
         <Image
           source={icons.search}
           style={styles.iconImg}

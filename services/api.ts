@@ -8,7 +8,7 @@ if (!API_TOKEN) {
 
 //Shared request helper
 
-const tmdbFetch = async <T>(endpoint: string): Promise<T> => {
+export const tmdbFetch = async <T>(endpoint: string): Promise<T> => {
   const response = await fetch(`${BASE_URL}${endpoint}`, {
     method: "GET",
     headers: {

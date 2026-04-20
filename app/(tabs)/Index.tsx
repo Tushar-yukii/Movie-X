@@ -198,8 +198,14 @@ export default function Index() {
   return (
     <View style={styles.container}>
       {/* topbar */}
-      <TopBar onSearchPress={() => setSearchVisible(true)} />
-
+      {/* // index.tsx — Home page → Movies search tab */}
+      <TopBar onSearchPress={() => setSearchVisible(true)} searchTab="Movies" />
+      {/* // play.tsx — Movies page → Movies search tab */}
+      <TopBar searchTab="Movies" />
+      {/* // search.tsx — Series page → Series search tab */}
+      <TopBar searchTab="Series" />
+      {/* // saved.tsx — Anime page → Anime search tab */}
+      <TopBar searchTab="Anime" />
       {/* Single FlatList — data=[] because everything
           is inside ListHeaderComponent
           No more numColumns or grid layout              */}
@@ -210,7 +216,6 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
-
       {/* Inline Search Overlay */}
       {searchVisible && (
         <KeyboardAvoidingView
