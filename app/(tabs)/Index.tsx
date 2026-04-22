@@ -24,7 +24,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { memo, useCallback, useState } from "react";
 import TopBar from "@/components/TopBar";
 
-// 🧠 MemoTrendingCard — only re-renders when props change
+//MemoTrendingCard — only re-renders when props change
 const MemoTrendingCard = memo(({ item }: { item: any }) => (
   <TrendingCard movie={item} />
 ));

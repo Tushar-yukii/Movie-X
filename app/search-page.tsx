@@ -22,13 +22,13 @@ export default function SearchPage() {
 
   const { defaultTab } = useLocalSearchParams<{ defaultTab: string }>();
 
-  // ✅ THE FIX IS HERE — these 4 lines replace the old useState line
-  // 🧠 Problem before: useState(defaultTab || "Movies") ran immediately
+  //  THE FIX IS HERE — these 4 lines replace the old useState line
+  //  Problem before: useState(defaultTab || "Movies") ran immediately
   //    before useLocalSearchParams finished reading the URL params
   //    so defaultTab was always undefined on first render
   //    causing activeTab to always start as "Movies"
   //
-  // 🧠 Fix: we validate the param BEFORE passing to useState
+  //  Fix: we validate the param BEFORE passing to useState
   //    validTabs array checks if param is one of our 3 real tabs
   //    if yes → use it directly
   //    if no (undefined/wrong value) → fallback to "Movies"
