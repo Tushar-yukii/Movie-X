@@ -225,15 +225,15 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   watchBtn: {
-    backgroundColor: "#6C63FF",
+    backgroundColor: "#989ED4",
     paddingVertical: 13,
     paddingHorizontal: 36,
-    borderRadius: 30,
+    borderRadius: 10,
     flex: 1,
     alignItems: "center",
   },
   watchText: {
-    color: "#FFFFFF",
+    color: "black",
     fontWeight: "700",
     fontSize: 15,
   },
