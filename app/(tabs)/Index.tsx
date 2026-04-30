@@ -23,6 +23,7 @@ import useHeroAnime from "@/services/useHeroAnime";
 import { LinearGradient } from "expo-linear-gradient";
 import { memo, useCallback, useState } from "react";
 import TopBar from "@/components/TopBar";
+// import { StatusBar } from "expo-status-bar";
 
 //MemoTrendingCard — only re-renders when props change
 const MemoTrendingCard = memo(({ item }: { item: any }) => (
@@ -197,6 +198,7 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
+      {/* <StatusBar style="light" translucent backgroundColor="transparent" /> */}
       {/* topbar */}
       {/* // index.tsx — Home page → Movies search tab */}
       <TopBar onSearchPress={() => setSearchVisible(true)} searchTab="Movies" />

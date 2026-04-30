@@ -3,7 +3,13 @@
 
 // components/TopBar.tsx
 
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  StatusBar,
+} from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -15,9 +21,9 @@ type Props = {
   onSearchPress?: () => void;
   searchTab?: SearchTab;
 };
-  // onSearchPress is still optional
-  // Home page passes its own function (inline overlay)
-  // Other pages don't pass anything → default behavior kicks in
+// onSearchPress is still optional
+// Home page passes its own function (inline overlay)
+// Other pages don't pass anything → default behavior kicks in
 
 const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
   const router = useRouter();
@@ -78,17 +84,18 @@ export default TopBar;
 
 const styles = StyleSheet.create({
   topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 14,
+    paddingTop:
+      Platform.OS === "android" ? (StatusBar.currentHeight ?? 24) + 8 : 52,
     paddingBottom: 8,
+    paddingHorizontal: 16,
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   topBarGradientBg: {
     position: "absolute",

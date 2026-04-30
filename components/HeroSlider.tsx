@@ -174,11 +174,12 @@ export default HeroSlider;
 const styles = StyleSheet.create({
   container: {
     width: width,
-    height: height * 0.58,
+    height: height * 0.62,
+    marginTop: 0,
   },
   slide: {
     width: width,
-    height: height * 0.58,
+    height: height * 0.62,
   },
   backdropImage: {
     width: "100%",
