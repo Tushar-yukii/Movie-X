@@ -79,8 +79,10 @@ export type AnimeItem = {
 export type MovieDetails = Movie & {
   id: number;
   title: string;
+  name?: string;                    // ← add
   overview?: string;
   poster_path: string | null;
+  backdrop_path?: string | null;    // ← add
   release_date?: string;
 
   runtime?: number;
@@ -89,6 +91,12 @@ export type MovieDetails = Movie & {
 
   budget?: number;
   revenue?: number;
+  original_language?: string;
+  status?: string;
+  tagline?: string;                 // ← add
+
+  number_of_episodes?: number;      // ← add
+  number_of_seasons?: number;       // ← add
 
   genres?: {
     id: number;
@@ -100,6 +108,12 @@ export type MovieDetails = Movie & {
     name: string;
     logo_path: string | null;
     origin_country: string;
+  }[];
+
+  spoken_languages?: {              // ← add
+    english_name: string;
+    iso_639_1: string;
+    name: string;
   }[];
 };
 

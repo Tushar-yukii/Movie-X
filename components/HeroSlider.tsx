@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: 36,
     borderRadius: 10,
-    flex: 1,
+    flex: 0,
     alignItems: "center",
   },
   watchText: {
