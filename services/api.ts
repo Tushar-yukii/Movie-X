@@ -301,3 +301,14 @@ export const fetchUpcomingAnime = async (): Promise<AnimeItem[]> => {
   );
   return data.results.slice(0, 10);
 };
+
+// recommendation sections
+export const fetchMovieRecommendations = async (
+  movieId: string,
+): Promise<Movie[]> => {
+  const data = await tmdbFetch<{ results: Movie[] }>(
+    `/movie/${movieId}/recommendations`,
+  );
+  // Slice to exactly 10 recommendations
+  return data.results.slice(0, 10);
+};

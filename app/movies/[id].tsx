@@ -7,10 +7,11 @@ import {
   ImageBackground,
   StatusBar,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { memo } from "react";
 import useFetch from "@/services/useFetch";
-import { fetchMovieDetails } from "@/services/api";
+import { fetchMovieDetails, fetchMovieRecommendations } from "@/services/api";
 import { router, useLocalSearchParams } from "expo-router";
 import { icons } from "@/constants/icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -56,77 +57,125 @@ const Badge = ({
   </View>
 );
 
-const InfoRow = ({
-  label,
-  value,
+// ✅ RecommendationCard — defined outside component
+// memo ensures it only re-renders when its own props change
+// Tapping navigates to that movie's detail page
+const RecommendationCard = memo(({
+  item,
+  onPress,
 }: {
-  label: string;
-  value?: string | number | null;
-}) => (
-  <View style={{ marginBottom: 16 }}>
-    <Text
-      style={{
-        color: "rgba(255,255,255,0.5)",
-        fontSize: 11,
-        fontWeight: "700",
-        letterSpacing: 1.2,
-        textTransform: "uppercase",
-        marginBottom: 4,
-      }}
-    >
-      {label}
-    </Text>
-    <Text
-      style={{
-        color: "rgba(255,255,255,0.9)",
-        fontSize: 14,
-        lineHeight: 22,
-        fontWeight: "400",
-      }}
-    >
-      {value || "N/A"}
-    </Text>
-  </View>
-);
+  item: any;
+  onPress: (id: number) => void;
+}) => {
+  const posterUri = item.poster_path
+    ? `https://image.tmdb.org/t/p/w342${item.poster_path}`
+    : "https://placehold.co/342x513/1a0533/FFF?text=No+Image";
 
-const StatBox = ({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) => (
-  <View
-    style={{
-      flex: 1,
-      alignItems: "center",
-      backgroundColor: "rgba(255,255,255,0.07)",
-      borderRadius: 12,
-      paddingVertical: 14,
-      marginHorizontal: 4,
-    }}
-  >
-    <Text style={{ color: "#F47521", fontSize: 18, fontWeight: "800" }}>
-      {value}
-    </Text>
-    <Text
+  const year = item.release_date?.split("-")[0] ?? "";
+  const rating = item.vote_average ? item.vote_average.toFixed(1) : null;
+
+  return (
+    <TouchableOpacity
+      onPress={() => onPress(item.id)}
+      activeOpacity={0.75}
       style={{
-        color: "rgba(255,255,255,0.5)",
-        fontSize: 11,
-        marginTop: 2,
-        letterSpacing: 0.8,
+        width: 110,
+        marginRight: 12,
       }}
     >
-      {label}
-    </Text>
-  </View>
-);
+      {/* Poster image */}
+      <View
+        style={{
+          borderRadius: 10,
+          overflow: "hidden",
+          backgroundColor: "#1a1a2e",
+          // Shadow
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.4,
+          shadowRadius: 8,
+          elevation: 6,
+        }}
+      >
+        <Image
+          source={{ uri: posterUri }}
+          style={{ width: 110, height: 160 }}
+          resizeMode="cover"
+        />
+        {/* Rating badge overlay on poster */}
+        {/* {rating && (
+          <View
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 6,
+              backgroundColor: "rgba(0,0,0,0.75)",
+              borderRadius: 6,
+              paddingHorizontal: 6,
+              paddingVertical: 2,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <Text style={{ color: "#FFD700", fontSize: 9 }}>★</Text>
+            <Text style={{ color: "#fff", fontSize: 10, fontWeight: "700" }}>
+              {rating}
+            </Text>
+          </View>
+        )} */}
+      </View>
+
+      {/* Title */}
+      <Text
+        style={{
+          color: "#fff",
+          fontSize: 11,
+          fontWeight: "600",
+          marginTop: 6,
+          lineHeight: 15,
+        }}
+        numberOfLines={2}
+      >
+        {item.title}
+      </Text>
+
+      {/* Year */}
+      {year ? (
+        <Text style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, marginTop: 2 }}>
+          {year}
+        </Text>
+      ) : null}
+    </TouchableOpacity>
+  );
+});
 
 const MovieDetails = () => {
   const { id } = useLocalSearchParams();
+
+  // Fetch movie details — existing
   const { data: movie, loading } = useFetch(() =>
-    fetchMovieDetails(id as string),
+    fetchMovieDetails(id as string)
   );
+
+  //  Fetch recommendations using the same movie id
+  //  fetchMovieRecommendations is the new function in api.ts
+  // It calls /movie/{id}/recommendations → returns 10 similar movies
+  // We pass false as second arg so it only runs when id exists
+  const { data: recommendations, loading: recsLoading } = useFetch(
+    () => fetchMovieRecommendations(id as string),
+    !!id // only fetch when id is available
+  );
+
+  // When user taps a recommendation card
+  // router.push navigates to that movie's detail page
+  // This creates a navigation stack so back button works correctly
+  const handleRecommendationPress = (movieId: number) => {
+    router.push({
+      pathname: "/movies/[id]",
+      params: { id: movieId.toString() },
+    });
+  };
 
   const posterUri = movie?.poster_path
     ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
@@ -170,8 +219,6 @@ const MovieDetails = () => {
 
   const year = movie.release_date?.split("-")[0] ?? "—";
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "—";
-  const companies =
-    movie.production_companies?.map((c: any) => c.name).join("  ·  ") || "—";
 
   return (
     <View style={{ flex: 1, backgroundColor: "#0f0720" }}>
@@ -287,69 +334,6 @@ const MovieDetails = () => {
           </View>
         </View>
 
-        {/* Genre Chips */}
-        {/* {movie.genres?.length ? (
-          <View
-            style={{
-              flexDirection: "row",
-              flexWrap: "wrap",
-              paddingHorizontal: 16,
-              marginTop: 14,
-            }}
-          > */}
-            {/* {movie.genres.map((g: any) => (
-              <View
-                key={g.id}
-                style={{
-                  backgroundColor: "rgba(244,117,33,0.15)",
-                  borderColor: "#7B6FCD",
-                  borderWidth: 1,
-                  borderRadius: 20,
-                  paddingHorizontal: 12,
-                  paddingVertical: 5,
-                  marginRight: 8,
-                  marginBottom: 8,
-                }}
-              >
-                <Text
-                  style={{ color: "#7B6FCD", fontSize: 12, fontWeight: "600" }}
-                >
-                  {g.name}
-                </Text>
-              </View>
-            ))}
-          </View>
-        ) : null} */}
-
-        {/* Stats Row */}
-        {/* <View
-          style={{
-            flexDirection: "row",
-            marginHorizontal: 16,
-            marginTop: 16,
-          }}
-        >
-          {movie.vote_average ? (
-            <StatBox label="Rating" value={`${rating}/10`} />
-          ) : null}
-          {movie.vote_count ? (
-            <StatBox
-              label="Votes"
-              value={
-                movie.vote_count > 999
-                  ? `${(movie.vote_count / 1000).toFixed(1)}k`
-                  : movie.vote_count
-              }
-            />
-          ) : null}
-          {movie.runtime ? (
-            <StatBox label="Runtime" value={`${movie.runtime}m`} />
-          ) : null}
-          {movie.number_of_seasons ? (
-            <StatBox label="Seasons" value={movie.number_of_seasons} />
-          ) : null}
-        </View> */}
-
         {/* Divider */}
         <View
           style={{
@@ -364,15 +348,14 @@ const MovieDetails = () => {
         <View style={{ paddingHorizontal: 16 }}>
           {/* Synopsis */}
           {movie.overview ? (
-            <View style={{ marginBottom: 20 }}>
+            <View style={{ marginBottom: 24 }}>
               <Text
                 style={{
-                  color: "rgba(255,255,255,0.5)",
-                  fontSize: 11,
-                  fontWeight: "700",
-                  letterSpacing: 1.2,
-                  textTransform: "uppercase",
-                  marginBottom: 8,
+                  color: "#fff",
+                  fontSize: 16,
+                  fontWeight: "800",
+                  letterSpacing: 0.3,
+                  marginBottom: 10,
                 }}
               >
                 Synopsis
@@ -388,43 +371,65 @@ const MovieDetails = () => {
               </Text>
             </View>
           ) : null}
+        </View>
 
-          {/* Budget / Revenue */}
-          {/* {movie.budget || movie.revenue ? (
-            <View style={{ flexDirection: "row", marginBottom: 8 }}>
-              {movie.budget ? (
-                <View style={{ flex: 1, marginRight: 8 }}>
-                  <InfoRow
-                    label="Budget"
-                    value={`$${(movie.budget / 1_000_000).toFixed(1)}M`}
-                  />
-                </View>
-              ) : null}
-              {movie.revenue ? (
-                <View style={{ flex: 1 }}>
-                  <InfoRow
-                    label="Revenue"
-                    value={`$${Math.round(movie.revenue / 1_000_000)}M`}
-                  />
-                </View>
-              ) : null}
-            </View>
-          ) : null} */}
+        {/* Recommendations Section
+            Shows 10 similar movies in horizontal scroll
+            Loading state shows spinner while fetching
+            Only shows when recommendations exist          */}
+        <View style={{ marginTop: 4, marginBottom: 16 }}>
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 16,
+              fontWeight: "800",
+              letterSpacing: 0.3,
+              marginBottom: 14,
+              paddingHorizontal: 16,
+            }}
+          >
+            Recommendations
+          </Text>
 
-          {/* Production Companies */}
-          {/* {movie.production_companies?.length ? (
-            <InfoRow label="Production Companies" value={companies} />
-          ) : null} */}
-
-          {/* Languages
-          {movie.spoken_languages?.length ? (
-            <InfoRow
-              label="Languages"
-              value={movie.spoken_languages
-                .map((l: any) => l.english_name)
-                .join("  ·  ")}
+          {recsLoading ? (
+            // Show spinner while recommendations load
+            <ActivityIndicator
+              color="#7B6FCD"
+              style={{ marginTop: 10, marginBottom: 10 }}
             />
-          ) : null} */}
+          ) : recommendations && recommendations.length > 0 ? (
+            // Horizontal ScrollView for recommendation cards
+            // ScrollView used instead of FlatList to avoid
+            // VirtualizedList nesting warning inside ScrollView
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingHorizontal: 16,
+                gap: 12,
+              }}
+              decelerationRate="fast"
+            >
+              {recommendations.map((item: any) => (
+                <RecommendationCard
+                  key={item.id.toString()}
+                  item={item}
+                  onPress={handleRecommendationPress}
+                />
+              ))}
+            </ScrollView>
+          ) : (
+            // No recommendations found
+            <Text
+              style={{
+                color: "rgba(255,255,255,0.4)",
+                fontSize: 13,
+                paddingHorizontal: 16,
+              }}
+            >
+              No recommendations available
+            </Text>
+          )}
         </View>
       </ScrollView>
 
