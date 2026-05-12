@@ -1,7 +1,8 @@
 // uses anime_id from AnimeCardItem type
 import { Link } from "expo-router";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+import { memo } from "react";
 
 type AnimePageCardProps = {
   anime: {
@@ -19,7 +20,7 @@ const AnimePageCard = ({ anime }: AnimePageCardProps) => {
     <Link
       href={{
         pathname: "/movies/[id]",
-        params: { id: anime_id.toString() },
+        params: { id: anime_id.toString(), type: "tv" },
       }}
       asChild
     >
@@ -44,7 +45,7 @@ const AnimePageCard = ({ anime }: AnimePageCardProps) => {
   );
 };
 
-export default AnimePageCard;
+export default memo(AnimePageCard);
 
 const styles = StyleSheet.create({
   card: {

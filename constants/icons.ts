@@ -25,8 +25,3 @@ export const icons = {
  tabSeries: series,
 tabAnime: star, 
 };
-  // tabHome: home,        //home icon
-  // tabMovies: play,      //fim/movies icon (replace with film strip icon)
-  // tabSeries: save,      //TV/series icon (replace with TV icon)
-  // tabAnime: star,       //sparkle/anime icon
-  // tabProfile: person,   //profile/binoculars icon

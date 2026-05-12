@@ -296,8 +296,8 @@ const MovieDetails = () => {
               paddingHorizontal: 16,
               marginTop: 14,
             }}
-          >
-            {movie.genres.map((g: any) => (
+          > */}
+            {/* {movie.genres.map((g: any) => (
               <View
                 key={g.id}
                 style={{

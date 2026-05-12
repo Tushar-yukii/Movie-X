@@ -79,10 +79,10 @@ export type AnimeItem = {
 export type MovieDetails = Movie & {
   id: number;
   title: string;
-  name?: string;                    // ← add
+  name?: string;
   overview?: string;
   poster_path: string | null;
-  backdrop_path?: string | null;    // ← add
+  backdrop_path?: string | null;
   release_date?: string;
 
   runtime?: number;
@@ -93,10 +93,10 @@ export type MovieDetails = Movie & {
   revenue?: number;
   original_language?: string;
   status?: string;
-  tagline?: string;                 // ← add
+  tagline?: string;
 
-  number_of_episodes?: number;      // ← add
-  number_of_seasons?: number;       // ← add
+  number_of_episodes?: number;
+  number_of_seasons?: number;
 
   genres?: {
     id: number;
@@ -110,7 +110,7 @@ export type MovieDetails = Movie & {
     origin_country: string;
   }[];
 
-  spoken_languages?: {              // ← add
+  spoken_languages?: {
     english_name: string;
     iso_639_1: string;
     name: string;
@@ -190,6 +190,11 @@ export const fetchMovieDetails = async (
   movieId: string,
 ): Promise<MovieDetails> => {
   return tmdbFetch<MovieDetails>(`/movie/${movieId}`);
+};
+
+// Fetch TV Details Anime & Web Series
+export const fetchTVDetails = async (tvId: string): Promise<MovieDetails> => {
+  return tmdbFetch<MovieDetails>(`/tv/${tvId}`);
 };
 
 // 1. Popular Web Series — for hero slider (15 slides)

@@ -20,51 +20,62 @@ import HeroSlider from "@/components/HeroSlider";
 import useTrendingMovies from "@/services/useTrendingMovies";
 import useTrendingAnime from "@/services/useTrendingAnime";
 import useHeroAnime from "@/services/useHeroAnime";
-import { LinearGradient } from "expo-linear-gradient";
 import { memo, useCallback, useState } from "react";
 import TopBar from "@/components/TopBar";
-// import { StatusBar } from "expo-status-bar";
 
-//MemoTrendingCard — only re-renders when props change
 const MemoTrendingCard = memo(({ item }: { item: any }) => (
   <TrendingCard movie={item} />
+));
+
+const MemoAnimeCard = memo(({ item }: { item: any }) => (
+  <AnimeCard anime={item} />
 ));
 
 export default function Index() {
   const router = useRouter();
 
-  // Search state
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
 
-  // Data hooks
   const { slides, loading: heroLoading } = useHeroAnime();
-  const {
-    trendingAnime,
-    loading: animeLoading,
-    error: animeError,
-  } = useTrendingAnime();
-  const {
-    trendingMovies,
-    loading: trendingLoading,
-    error: trendingError,
-  } = useTrendingMovies();
+  const { trendingAnime, loading: animeLoading, error: animeError } = useTrendingAnime();
+  const { trendingMovies, loading: trendingLoading, error: trendingError } = useTrendingMovies();
+  const { data: movies, loading: moviesLoading, error: moviesError } = useFetch(
+    () => fetchMovies({ query: "" })
+  );
 
-  // fetchMovies with no query = popular/discover movies
-  // Used for Popular Movies horizontal row
-  const {
-    data: movies,
-    loading: moviesLoading,
-    error: moviesError,
-  } = useFetch(() => fetchMovies({ query: "" }));
-
-  const isLoading =
-    heroLoading || animeLoading || trendingLoading || moviesLoading;
+  const isLoading = heroLoading || animeLoading || trendingLoading || moviesLoading;
   const isError = animeError || trendingError || moviesError;
 
-  // Search handlers
+  // All renderItem callbacks defined at top level — NOT inside ListHeader
+  const renderAnimeCard = useCallback(
+    ({ item }: { item: any }) => <MemoAnimeCard item={item} />,
+    [],
+  );
+
+  const renderTrendingCard = useCallback(
+    ({ item }: { item: any }) => <MemoTrendingCard item={item} />,
+    [],
+  );
+
+  const renderPopularCard = useCallback(
+    ({ item }: { item: any }) => (
+      <TrendingCard
+        movie={{
+          movie_id: item.id,
+          title: item.title,
+          poster_url: item.poster_path
+            ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+            : null,
+          release_date: item.release_date ?? null,
+        }}
+      />
+    ),
+    [],
+  );
+
   const handleSearch = async (text: string) => {
     setSearchQuery(text);
     if (text.length < 2) {
@@ -88,9 +99,6 @@ export default function Index() {
     setSearchResults([]);
   };
 
-  // ListHeader contains ALL sections
-  // movies added to dependency array so Popular Movies
-  // section updates when movies data loads
   const ListHeader = useCallback(() => {
     if (isLoading) {
       return (
@@ -115,10 +123,8 @@ export default function Index() {
 
     return (
       <>
-        {/* Hero Slider */}
-        <HeroSlider slides={slides} label="Anime" />
+        <HeroSlider slides={slides} label="Anime" type="tv" />
 
-        {/* Trending Anime */}
         {trendingAnime.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Trending Anime</Text>
@@ -127,7 +133,7 @@ export default function Index() {
               showsHorizontalScrollIndicator={false}
               data={trendingAnime}
               contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-              renderItem={({ item }) => <AnimeCard anime={item} />}
+              renderItem={renderAnimeCard}
               keyExtractor={(item) => item.anime_id.toString()}
               decelerationRate="fast"
               initialNumToRender={4}
@@ -137,7 +143,6 @@ export default function Index() {
           </View>
         )}
 
-        {/* Trending Movies */}
         {trendingMovies.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Trending Movies</Text>
@@ -146,7 +151,7 @@ export default function Index() {
               showsHorizontalScrollIndicator={false}
               data={trendingMovies}
               contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-              renderItem={({ item }) => <TrendingCard movie={item} />}
+              renderItem={renderTrendingCard}
               keyExtractor={(item) => item.movie_id.toString()}
               decelerationRate="fast"
               initialNumToRender={4}
@@ -156,11 +161,6 @@ export default function Index() {
           </View>
         )}
 
-        {/* Popular Movies — horizontal scroll
-            Maps movies (Movie type) → TrendingCard shape
-            TrendingCard expects: movie_id, title, poster_url, release_date
-            Movie type has:       id,       title, poster_path, release_date
-            So we map the shape difference here                              */}
         {movies && movies.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Popular Movies</Text>
@@ -169,18 +169,7 @@ export default function Index() {
               showsHorizontalScrollIndicator={false}
               data={movies}
               contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-              renderItem={({ item }) => (
-                <TrendingCard
-                  movie={{
-                    movie_id: item.id,
-                    title: item.title,
-                    poster_url: item.poster_path
-                      ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
-                      : null,
-                    release_date: item.release_date ?? null,
-                  }}
-                />
-              )}
+              renderItem={renderPopularCard}
               keyExtractor={(item, index) => `popular-${item.id}-${index}`}
               decelerationRate="fast"
               initialNumToRender={4}
@@ -190,27 +179,25 @@ export default function Index() {
           </View>
         )}
 
-        {/* Bottom spacing so last row isn't hidden by tab bar */}
         <View style={{ height: 24 }} />
       </>
     );
-  }, [isLoading, isError, slides, trendingAnime, trendingMovies, movies]);
+  }, [
+    isLoading,
+    isError,
+    slides,
+    trendingAnime,
+    trendingMovies,
+    movies,
+    renderAnimeCard,
+    renderTrendingCard,
+    renderPopularCard,
+  ]);
 
   return (
     <View style={styles.container}>
-      {/* <StatusBar style="light" translucent backgroundColor="transparent" /> */}
-      {/* topbar */}
-      {/* // index.tsx — Home page → Movies search tab */}
       <TopBar onSearchPress={() => setSearchVisible(true)} searchTab="Movies" />
-      {/* // play.tsx — Movies page → Movies search tab */}
-      <TopBar searchTab="Movies" />
-      {/* // search.tsx — Series page → Series search tab */}
-      <TopBar searchTab="Series" />
-      {/* // saved.tsx — Anime page → Anime search tab */}
-      <TopBar searchTab="Anime" />
-      {/* Single FlatList — data=[] because everything
-          is inside ListHeaderComponent
-          No more numColumns or grid layout              */}
+
       <FlatList
         data={[]}
         renderItem={null}
@@ -218,7 +205,7 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
       />
-      {/* Inline Search Overlay */}
+
       {searchVisible && (
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -277,7 +264,7 @@ export default function Index() {
                     closeSearch();
                     router.push({
                       pathname: "/movies/[id]",
-                      params: { id: item.id.toString() },
+                      params: { id: item.id.toString(), type: "movie" },
                     });
                   }}
                 >
@@ -316,55 +303,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0D0D1A",
-  },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 8,
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-  },
-  topBarGradientBg: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 110,
-  },
-  personCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "rgba(99, 120, 255, 0.35)",
-    borderWidth: 2,
-    borderColor: "rgba(140, 160, 255, 0.9)",
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#6378FF",
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  searchCircle: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderWidth: 1.5,
-    borderColor: "rgba(255,255,255,0.35)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  iconImg: {
-    width: 18,
-    height: 18,
   },
   section: {
     marginTop: 24,

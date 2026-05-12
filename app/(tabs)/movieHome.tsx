@@ -1,21 +1,17 @@
-// app/(tabs)/search.tsx — now Web Series page
-
 import {
   ActivityIndicator,
   FlatList,
+  ScrollView,
   StyleSheet,
   Text,
   View,
-  Platform,
 } from "react-native";
 import { memo, useCallback } from "react";
-// import useWebSeriesPage from "@/services/useWebSeriesPage";
 import HeroSlider from "@/components/HeroSlider";
 import SeriesCard from "@/components/SeriesCard";
 import useWebSeriesPage from "@/services/useWebSeriespage";
 import TopBar from "@/components/TopBar";
 
-// Memoized SeriesCard for horizontal rows
 const MemoSeriesCard = memo(({ item }: { item: any }) => (
   <SeriesCard series={item} />
 ));
@@ -30,10 +26,79 @@ export default function WebSeriesScreen() {
     error,
   } = useWebSeriesPage();
 
-  // Memoized renderItem — prevents re-renders
+  //  before any early returns
   const renderSeriesCard = useCallback(
     ({ item }: { item: any }) => <MemoSeriesCard item={item} />,
     [],
+  );
+
+  //  before any early returns
+  const ListHeader = useCallback(
+    () => (
+      <>
+        <HeroSlider slides={heroSlides} type="tv" label="Series" />
+
+        {trendingSeries.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Trending Web Series</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={trendingSeries}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+              renderItem={renderSeriesCard}
+              keyExtractor={(item) => item.series_id.toString()}
+              decelerationRate="fast"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={3}
+              removeClippedSubviews={true}
+            />
+          </View>
+        )}
+
+        {recentlyCompleted.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Recently Completed</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={recentlyCompleted}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+              renderItem={renderSeriesCard}
+              keyExtractor={(item) => `completed-${item.series_id}`}
+              decelerationRate="fast"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={3}
+              removeClippedSubviews={true}
+            />
+          </View>
+        )}
+
+        {upcomingSeries.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Upcoming Web Series</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={upcomingSeries}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+              renderItem={renderSeriesCard}
+              keyExtractor={(item) => `upcoming-${item.series_id}`}
+              decelerationRate="fast"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={3}
+              removeClippedSubviews={true}
+            />
+          </View>
+        )}
+
+        <View style={{ height: 24 }} />
+      </>
+    ),
+    [heroSlides, trendingSeries, recentlyCompleted, upcomingSeries, renderSeriesCard],
   );
 
   if (loading) {
@@ -52,85 +117,16 @@ export default function WebSeriesScreen() {
     );
   }
 
-  //  ListHeaderComponent — hero slider + all 3 horizontal sections
-  // Same pattern as home page — everything is header of one FlatList
-  // So the page scrolls as one smooth unit
-  const ListHeader = () => (
-    <>
-      {/* Hero Slider — 15 popular web series, auto slides */}
-      <HeroSlider slides={heroSlides} />
-
-      {/* Trending Web Series */}
-      {trendingSeries.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Trending Web Series</Text>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={trendingSeries}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-            renderItem={renderSeriesCard}
-            keyExtractor={(item) => item.series_id.toString()}
-            decelerationRate="fast"
-            initialNumToRender={4}
-            maxToRenderPerBatch={4}
-            windowSize={3}
-          />
-        </View>
-      )}
-
-      {/* Recently Completed */}
-      {recentlyCompleted.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recently Completed</Text>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={recentlyCompleted}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-            renderItem={renderSeriesCard}
-            keyExtractor={(item) => `completed-${item.series_id}`}
-            decelerationRate="fast"
-            initialNumToRender={4}
-            maxToRenderPerBatch={4}
-            windowSize={3}
-          />
-        </View>
-      )}
-
-      {/* Upcoming Web Series */}
-      {upcomingSeries.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Upcoming Web Series</Text>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={upcomingSeries}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-            renderItem={renderSeriesCard}
-            keyExtractor={(item) => `upcoming-${item.series_id}`}
-            decelerationRate="fast"
-            initialNumToRender={4}
-            maxToRenderPerBatch={4}
-            windowSize={3}
-          />
-        </View>
-      )}
-
-      {/* Bottom spacing */}
-      <View style={{ height: 24 }} />
-    </>
-  );
-
   return (
     <View style={styles.container}>
-      <TopBar />
+      <TopBar searchTab="Series" />
       <FlatList
-        data={[]} // empty — all content is in ListHeader
+        data={[]}
         renderItem={null}
         ListHeaderComponent={ListHeader}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
+        removeClippedSubviews={true}
       />
     </View>
   );

@@ -12,7 +12,7 @@ const MovieCard = ({
     <Link
       href={{
         pathname: "/movies/[id]",
-        params: { id: id.toString() },
+        params: { id: id.toString(), type: "movie"},
       }}
       asChild
     >

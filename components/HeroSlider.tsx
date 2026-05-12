@@ -18,9 +18,10 @@ const SLIDE_INTERVAL = 5000;
 type Props = {
   slides: HeroSlide[];
   label?: string;
+  type?: "movie" | "tv";
 };
 
-const HeroSlider = ({ slides, label = "Series" }: Props) => {
+const HeroSlider = ({ slides, label = "Series", type = "tv" }: Props) => {
   const router = useRouter();
   const flatListRef = useRef<FlatList>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -144,7 +145,7 @@ const HeroSlider = ({ slides, label = "Series" }: Props) => {
             onPress={() =>
               router.push({
                 pathname: "/movies/[id]",
-                params: { id: currentSlide.id.toString() },
+                params: { id: currentSlide.id.toString(), type: type },
               })
             }
           >
@@ -156,7 +157,7 @@ const HeroSlider = ({ slides, label = "Series" }: Props) => {
             onPress={() =>
               router.push({
                 pathname: "/movies/[id]",
-                params: { id: currentSlide.id.toString() },
+                params: { id: currentSlide.id.toString(), type: type },
               })
             }
           >

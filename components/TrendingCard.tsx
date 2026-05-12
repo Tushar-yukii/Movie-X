@@ -1,6 +1,7 @@
 import { Link } from "expo-router";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+import { memo } from "react";
 
 type TrendingCardProps = {
   movie: {
@@ -18,7 +19,7 @@ const TrendingCard = ({
     <Link
       href={{
         pathname: "/movies/[id]",
-        params: { id: movie_id.toString() },
+        params: { id: movie_id.toString(), type: "movie" },
       }}
       asChild
     >
@@ -48,7 +49,7 @@ const TrendingCard = ({
   );
 };
 
-export default TrendingCard;
+export default memo(TrendingCard);
 
 const styles = StyleSheet.create({
   card: {

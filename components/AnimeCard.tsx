@@ -1,7 +1,8 @@
 // components/AnimeCard.tsx
 import { Link } from "expo-router";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+import { memo } from "react";
 
 type AnimeCardProps = {
   anime: {
@@ -18,8 +19,8 @@ const AnimeCard = ({
   return (
     <Link
       href={{
-        pathname: "/movies/[id]", // reuse movie detail screen for now
-        params: { id: anime_id.toString() },
+        pathname: "/movies/[id]", // reuse movie detail 
+        params: { id: anime_id.toString(), type: "tv" },
       }}
       asChild
     >
@@ -42,7 +43,7 @@ const AnimeCard = ({
   );
 };
 
-export default AnimeCard;
+export default memo(AnimeCard);
 
 const styles = StyleSheet.create({
   card: {

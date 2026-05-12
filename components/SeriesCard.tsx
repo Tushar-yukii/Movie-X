@@ -5,6 +5,7 @@
 import { Link } from "expo-router";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+import { memo } from "react";
 
 type SeriesCardProps = {
   series: {
@@ -22,7 +23,7 @@ const SeriesCard = ({ series }: SeriesCardProps) => {
     <Link
       href={{
         pathname: "/movies/[id]",
-        params: { id: series_id.toString() },
+        params: { id: series_id.toString(), type: "tv" },
       }}
       asChild
     >
@@ -47,7 +48,7 @@ const SeriesCard = ({ series }: SeriesCardProps) => {
   );
 };
 
-export default SeriesCard;
+export default memo(SeriesCard);
 
 const styles = StyleSheet.create({
   card: {
