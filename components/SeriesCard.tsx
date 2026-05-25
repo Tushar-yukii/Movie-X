@@ -23,7 +23,7 @@ const SeriesCard = ({ series }: SeriesCardProps) => {
     <Link
       href={{
         pathname: "/movies/[id]",
-        params: { id: series_id.toString(), type: "tv" },
+        params: { id: series_id.toString(), type: "series" },
       }}
       asChild
     >

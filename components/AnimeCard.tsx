@@ -20,7 +20,7 @@ const AnimeCard = ({
     <Link
       href={{
         pathname: "/movies/[id]", // reuse movie detail 
-        params: { id: anime_id.toString(), type: "tv" },
+        params: { id: anime_id.toString(), type: "anime" },
       }}
       asChild
     >
