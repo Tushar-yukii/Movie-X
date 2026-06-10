@@ -22,6 +22,8 @@ import useTrendingAnime from "@/services/useTrendingAnime";
 import useHeroAnime from "@/services/useHeroAnime";
 import { memo, useCallback, useState } from "react";
 import TopBar from "@/components/TopBar";
+import { fetchTopSeries } from "@/services/api";
+import SeriesCard from "@/components/SeriesCard";
 
 const MemoTrendingCard = memo(({ item }: { item: any }) => (
   <TrendingCard movie={item} />
@@ -40,14 +42,32 @@ export default function Index() {
   const [searchLoading, setSearchLoading] = useState(false);
 
   const { slides, loading: heroLoading } = useHeroAnime();
-  const { trendingAnime, loading: animeLoading, error: animeError } = useTrendingAnime();
-  const { trendingMovies, loading: trendingLoading, error: trendingError } = useTrendingMovies();
-  const { data: movies, loading: moviesLoading, error: moviesError } = useFetch(
-    () => fetchMovies({ query: "" })
+  const {
+    trendingAnime,
+    loading: animeLoading,
+    error: animeError,
+  } = useTrendingAnime();
+  const {
+    trendingMovies,
+    loading: trendingLoading,
+    error: trendingError,
+  } = useTrendingMovies();
+  const {
+    data: movies,
+    loading: moviesLoading,
+    error: moviesError,
+  } = useFetch(() => fetchMovies({ query: "" }));
+  const { data: topSeries, loading: topSeriesLoading } = useFetch(() =>
+    fetchTopSeries(),
   );
-
-  const isLoading = heroLoading || animeLoading || trendingLoading || moviesLoading;
+  const isLoading =
+    heroLoading ||
+    animeLoading ||
+    trendingLoading ||
+    moviesLoading ||
+    topSeriesLoading;
   const isError = animeError || trendingError || moviesError;
+  // Fetch top 10 series for home page
 
   // All renderItem callbacks defined at top level — NOT inside ListHeader
   const renderAnimeCard = useCallback(

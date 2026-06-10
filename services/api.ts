@@ -184,6 +184,14 @@ export const fetchTrendingMovies = async (): Promise<Movie[]> => {
   return [...page1.results, ...page2.results, ...page3.results].slice(0, 50);
 };
 
+// fetch top series 
+export const fetchTopSeries = async (): Promise<WebSeries[]> => {
+  const data = await tmdbFetch<{ results: WebSeries[] }>(
+    "/tv/top_rated?page=1",
+  );
+  return data.results.slice(0, 10);
+};
+
 // Fetch Movie Details
 
 export const fetchMovieDetails = async (
