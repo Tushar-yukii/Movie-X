@@ -9,6 +9,7 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from "react-native";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -181,21 +182,31 @@ export default function Index() {
           </View>
         )}
 
-        {movies && movies.length > 0 && (
+        {topSeries && topSeries.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Popular Movies</Text>
-            <FlatList
+            <Text style={styles.sectionTitle}>Top Series</Text>
+            <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              data={movies}
               contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-              renderItem={renderPopularCard}
-              keyExtractor={(item, index) => `popular-${item.id}-${index}`}
+              // contentContainerStyle={styles.horizontalList}
               decelerationRate="fast"
-              initialNumToRender={4}
-              maxToRenderPerBatch={4}
-              windowSize={3}
-            />
+            >
+              {topSeries.map((item: any, index: number) => (
+                <View key={`top-series-${item.id}`} style={styles.rankedCard}>
+                  <SeriesCard
+                    series={{
+                      series_id: item.id,
+                      title: item.name,
+                      poster_url: item.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                        : null,
+                      release_date: item.first_air_date ?? null,
+                    }}
+                  />
+                </View>
+              ))}
+            </ScrollView>
           </View>
         )}
 
@@ -426,5 +437,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     marginTop: 40,
+  },
+  rankedCard: {
+    position: "relative",
+    marginRight: 12,
+  },
+  rankBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    zIndex: 10,
+    backgroundColor: "#6C63FF",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  rankNumber: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "800",
   },
 });

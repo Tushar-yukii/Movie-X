@@ -186,10 +186,12 @@ export const fetchTrendingMovies = async (): Promise<Movie[]> => {
 
 // fetch top series 
 export const fetchTopSeries = async (): Promise<WebSeries[]> => {
-  const data = await tmdbFetch<{ results: WebSeries[] }>(
-    "/tv/top_rated?page=1",
-  );
-  return data.results.slice(0, 10);
+  const [p1, p2, p3] = await Promise.all([
+    tmdbFetch<{ results: WebSeries[] }>("/tv/top_rated?page=1"),
+    tmdbFetch<{ results: WebSeries[] }>("/tv/top_rated?page=2"),
+    tmdbFetch<{ results: WebSeries[] }>("/tv/top_rated?page=3"),
+  ]);
+   return [...p1.results, ...p2.results, ...p3.results].slice(0, 50);
 };
 
 // Fetch Movie Details
