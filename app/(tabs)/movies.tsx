@@ -29,7 +29,7 @@ export default function MoviesScreen() {
     error,
   } = useMoviesPage();
 
-  // ✅ Define ALL renderItem callbacks here at top level
+  // Define ALL renderItem callbacks here at top level
   const renderMovieCard = useCallback(
     ({ item }: { item: any }) => <MemoMovieCard item={item} />,
     [],
@@ -56,7 +56,7 @@ export default function MoviesScreen() {
             showsHorizontalScrollIndicator={false}
             data={trendingMovies}
             contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-            renderItem={renderMovieCard}  // ✅ use ref, not inline useCallback
+            renderItem={renderMovieCard}  //  use ref, not inline useCallback
             keyExtractor={(item) => `trending-${item.movie_id}`}
             decelerationRate="fast"
             initialNumToRender={4}
@@ -74,7 +74,7 @@ export default function MoviesScreen() {
             showsHorizontalScrollIndicator={false}
             data={popularMovies}
             contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-            renderItem={renderMovieCard}  // ✅ reuse same ref
+            renderItem={renderMovieCard}  // reuse same ref
             keyExtractor={(item) => `popular-${item.movie_id}`}
             decelerationRate="fast"
             initialNumToRender={4}
@@ -92,7 +92,7 @@ export default function MoviesScreen() {
             showsHorizontalScrollIndicator={false}
             data={top10Movies}
             contentContainerStyle={{ paddingHorizontal: 16, gap: 1 }}
-            renderItem={renderRankedCard}  // ✅ use ref
+            renderItem={renderRankedCard}  //  use ref
             keyExtractor={(item) => `top10-${item.movie_id}`}
             decelerationRate="fast"
             initialNumToRender={4}

@@ -6,7 +6,6 @@ import save from "@/gobal_assets/icons/save.png";
 // import star from "@/gobal_assets/icons/star.png";
 import play from "@/gobal_assets/icons/play.png";
 import arrow from "@/gobal_assets/icons/arrow.png";
-// import anime from "@/gobal_assets/icons/anime.png";
 import home7 from "@/gobal_assets/icons/home7.png";
 import movies from "@/gobal_assets/icons/movies.png";
 import series from "@/gobal_assets/icons/series.png";
