@@ -22,19 +22,22 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./gobal_assets/images.logo.png" 
+      "favicon": "./gobal_assets/images.logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image":"./gobal_assets/images.logo.png",
+          "image": "./gobal_assets/images.logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-image",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
