@@ -1,5 +1,5 @@
 // all 3 pages - home , series , movies top bar with person icon
-// this is calles a - reusable companent in react.
+// reusable companent
 
 // components/TopBar.tsx
 

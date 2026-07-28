@@ -3,7 +3,7 @@
 // Shows poster + title + year
 
 import { Link } from "expo-router";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
 import { memo } from "react";
 
@@ -18,7 +18,7 @@ type SeriesCardProps = {
 
 const SeriesCard = ({ series }: SeriesCardProps) => {
   const { series_id, title, poster_url, release_date } = series;
-// error
+  // error
   return (
     <Link
       href={{
@@ -40,9 +40,7 @@ const SeriesCard = ({ series }: SeriesCardProps) => {
         <Text style={styles.title} numberOfLines={2}>
           {title}
         </Text>
-        <Text style={styles.year}>
-          {release_date?.split("-")[0] ?? ""}
-        </Text>
+        <Text style={styles.year}>{release_date?.split("-")[0] ?? ""}</Text>
       </TouchableOpacity>
     </Link>
   );
@@ -52,7 +50,7 @@ export default memo(SeriesCard);
 
 const styles = StyleSheet.create({
   card: {
-    width:104,
+    width: 104,
     marginRight: 12,
   },
   poster: {

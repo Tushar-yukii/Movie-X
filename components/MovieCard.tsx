@@ -1,18 +1,13 @@
 import { Link } from "expo-router";
 import { Text, Image, TouchableOpacity, View } from "react-native";
-import { memo } from "react"; 
+import { memo } from "react";
 
-const MovieCard = ({
-  id,
-  poster_path,
-  title,
-  release_date,
-}: Movie) => {
+const MovieCard = ({ id, poster_path, title, release_date }: Movie) => {
   return (
     <Link
       href={{
         pathname: "/movies/[id]",
-        params: { id: id.toString(), type: "movie"},
+        params: { id: id.toString(), type: "movie" },
       }}
       asChild
     >
@@ -20,7 +15,7 @@ const MovieCard = ({
         <Image
           source={{
             uri: poster_path
-              ? `https://image.tmdb.org/t/p/w342${poster_path}` 
+              ? `https://image.tmdb.org/t/p/w342${poster_path}`
               : "https://placehold.co/600x400/1a1a1a/FFFFFF.png",
           }}
           className="w-full h-32 rounded-lg"
@@ -37,7 +32,7 @@ const MovieCard = ({
   );
 };
 
-// memo means — only re-render this card if its props actually changed
+// memo — only re-render this card if its props actually changed
 // Without memo: scroll → all 80 cards re-render → lag
 // With memo: scroll → only visible cards re-render → smooth
 export default memo(MovieCard);

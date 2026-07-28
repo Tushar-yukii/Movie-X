@@ -37,9 +37,7 @@ const AnimePageCard = ({ anime }: AnimePageCardProps) => {
         <Text style={styles.title} numberOfLines={2}>
           {title}
         </Text>
-        <Text style={styles.year}>
-          {release_date?.split("-")[0] ?? ""}
-        </Text>
+        <Text style={styles.year}>{release_date?.split("-")[0] ?? ""}</Text>
       </TouchableOpacity>
     </Link>
   );
