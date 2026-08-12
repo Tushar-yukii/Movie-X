@@ -1,7 +1,6 @@
-import { View, Text, Image, TextInput } from "react-native";
-import React from "react";
 import { icons } from "@/constants/icons";
-import { TouchableOpacity } from "react-native";
+import React from "react";
+import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 interface props {
   placeholder: string;
   onPress?: () => void;

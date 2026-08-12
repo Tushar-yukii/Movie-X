@@ -1,3 +1,8 @@
+import AnimePageCard from "@/components/AnimePageCard";
+import HeroSlider from "@/components/HeroSlider";
+import TopBar from "@/components/TopBar";
+import useAnimePage from "@/services/useAnimePage";
+import { memo, useCallback } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -5,16 +10,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { memo, useCallback } from "react";
-import useAnimePage from "@/services/useAnimePage";
-import HeroSlider from "@/components/HeroSlider";
-import AnimePageCard from "@/components/AnimePageCard";
-import TopBar from "@/components/TopBar";
 
-const MemoAnimeCard = memo(({ item }: { item: any }) => (
-  <AnimePageCard anime={item} />
-));
-
+const MemoAnimeCard = memo(function MemoAnimeCard({ item }: { item: any }) {
+  return <AnimePageCard anime={item} />;
+});
 export default function AnimeScreen() {
   const {
     heroSlides,
