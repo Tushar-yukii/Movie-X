@@ -1,5 +1,10 @@
 // 3td button show - top rated trending , popular movies
 
+import HeroSlider from "@/components/HeroSlider";
+import TopBar from "@/components/TopBar";
+import TrendingCard from "@/components/TrendingCard";
+import useMoviesPage from "@/services/useMoviesPage";
+import { memo, useCallback } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,17 +12,12 @@ import {
   Text,
   View,
 } from "react-native";
-import { memo, useCallback } from "react";
-import useMoviesPage from "@/services/useMoviesPage";
-import HeroSlider from "@/components/HeroSlider";
-import TrendingCard from "@/components/TrendingCard";
-import TopBar from "@/components/TopBar";
 
 // MemoMovieCard — prevents unnecessary re-renders
 // on horizontal scroll
-const MemoMovieCard = memo(({ item }: { item: any }) => (
-  <TrendingCard movie={item} />
-));
+const MemoMovieCard = memo(function MemoMovieCard({ item }: { item: any }) {
+  return <TrendingCard movie={item} />;
+});
 
 export default function MoviesScreen() {
   const {
@@ -44,67 +44,77 @@ export default function MoviesScreen() {
     [],
   );
 
-  const ListHeader = useCallback(() => (
-    <>
-      <HeroSlider slides={heroSlides} label="Movie" type="movie" />
+  const ListHeader = useCallback(
+    () => (
+      <>
+        <HeroSlider slides={heroSlides} label="Movie" type="movie" />
 
-      {trendingMovies.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Trending Movies</Text>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={trendingMovies}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-            renderItem={renderMovieCard}  //  use ref, not inline useCallback
-            keyExtractor={(item) => `trending-${item.movie_id}`}
-            decelerationRate="fast"
-            initialNumToRender={4}
-            maxToRenderPerBatch={4}
-            windowSize={3}
-          />
-        </View>
-      )}
+        {trendingMovies.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Trending Movies</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={trendingMovies}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
+              renderItem={renderMovieCard} //  use ref, not inline useCallback
+              keyExtractor={(item) => `trending-${item.movie_id}`}
+              decelerationRate="fast"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={3}
+            />
+          </View>
+        )}
 
-      {popularMovies.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Popular Movies</Text>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={popularMovies}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
-            renderItem={renderMovieCard}  // reuse same ref
-            keyExtractor={(item) => `popular-${item.movie_id}`}
-            decelerationRate="fast"
-            initialNumToRender={4}
-            maxToRenderPerBatch={4}
-            windowSize={3}
-          />
-        </View>
-      )}
+        {popularMovies.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Popular Movies</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={popularMovies}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 2 }}
+              renderItem={renderMovieCard} // reuse same ref
+              keyExtractor={(item) => `popular-${item.movie_id}`}
+              decelerationRate="fast"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={3}
+            />
+          </View>
+        )}
 
-      {top10Movies.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Top Movies</Text>
-          <FlatList
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            data={top10Movies}
-            contentContainerStyle={{ paddingHorizontal: 16, gap: 1 }}
-            renderItem={renderRankedCard}  //  use ref
-            keyExtractor={(item) => `top10-${item.movie_id}`}
-            decelerationRate="fast"
-            initialNumToRender={4}
-            maxToRenderPerBatch={4}
-            windowSize={3}
-          />
-        </View>
-      )}
+        {top10Movies.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Top Movies</Text>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              data={top10Movies}
+              contentContainerStyle={{ paddingHorizontal: 16, gap: 1 }}
+              renderItem={renderRankedCard} //  use ref
+              keyExtractor={(item) => `top10-${item.movie_id}`}
+              decelerationRate="fast"
+              initialNumToRender={4}
+              maxToRenderPerBatch={4}
+              windowSize={3}
+            />
+          </View>
+        )}
 
-      <View style={{ height: 24 }} />
-    </>
-  ), [heroSlides, trendingMovies, popularMovies, top10Movies, renderMovieCard, renderRankedCard]);
+        <View style={{ height: 24 }} />
+      </>
+    ),
+    [
+      heroSlides,
+      trendingMovies,
+      popularMovies,
+      top10Movies,
+      renderMovieCard,
+      renderRankedCard,
+    ],
+  );
 
   if (loading) {
     return (

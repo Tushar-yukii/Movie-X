@@ -1,143 +1,207 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TouchableOpacity,
-  ImageBackground,
-  StatusBar,
-  Dimensions,
-  ActivityIndicator,
-} from "react-native";
 import React, { memo } from "react";
-import useFetch from "@/services/useFetch";
-import { fetchMovieDetails, fetchMovieRecommendations } from "@/services/api";
-import { router, useLocalSearchParams } from "expo-router";
+import {
+  ActivityIndicator,
+  Dimensions,
+  Image,
+  ImageBackground,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
 import { LinearGradient } from "expo-linear-gradient";
+import { router, useLocalSearchParams } from "expo-router";
 
-const { width, height } = Dimensions.get("window");
+import { fetchMovieDetails, fetchMovieRecommendations } from "@/services/api";
+import useFetch from "@/services/useFetch";
 
-const { id, type } = useLocalSearchParams();
+/* =========================================================
+   SCREEN DIMENSIONS
+========================================================= */
 
-const isMovie = !type || type === "movie";
-// Meta badge — matches Image 3 style
-// icon + label in a pill shape
-const MetaBadge = ({
-  icon,
-  label,
-  accent = false,
-}: {
+const { height } = Dimensions.get("window");
+
+/* =========================================================
+   META BADGE
+========================================================= */
+
+type MetaBadgeProps = {
   icon: string;
   label: string;
   accent?: boolean;
-}) => (
-  <View
-    style={{
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: accent ? "#7B6FCD" : "rgba(255,255,255,0.12)",
-      borderRadius: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 5,
-      marginRight: 8,
-    }}
-  >
-    <Text style={{ fontSize: 12, marginRight: 4 }}>{icon}</Text>
-    <Text
+};
+
+function MetaBadge({ icon, label, accent = false }: MetaBadgeProps) {
+  return (
+    <View
       style={{
-        color: accent ? "#fff" : "rgba(255,255,255,0.85)",
-        fontSize: 12,
-        fontWeight: "600",
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: accent ? "#7B6FCD" : "rgba(255,255,255,0.12)",
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        marginRight: 8,
       }}
     >
-      {label}
-    </Text>
-  </View>
-);
-
-// Recommendation card — defined outside to prevent re-renders
-const RecommendationCard = memo(
-  ({ item, onPress }: { item: any; onPress: (id: number) => void }) => {
-    const posterUri = item.poster_path
-      ? `https://image.tmdb.org/t/p/w342${item.poster_path}`
-      : "https://placehold.co/342x513/1a0533/FFF?text=No+Image";
-
-    const year = item.release_date?.split("-")[0] ?? "";
-    const rating = item.vote_average ? item.vote_average.toFixed(1) : null;
-
-    return (
-      <TouchableOpacity
-        onPress={() => onPress(item.id)}
-        activeOpacity={0.75}
-        style={{ width: 110, marginRight: 12 }}
+      <Text
+        style={{
+          fontSize: 12,
+          marginRight: 4,
+        }}
       >
-        <View
-          style={{
-            borderRadius: 10,
-            overflow: "hidden",
-            backgroundColor: "#1a1a2e",
-            elevation: 6,
+        {icon}
+      </Text>
+
+      <Text
+        style={{
+          color: accent ? "#fff" : "rgba(255,255,255,0.85)",
+          fontSize: 12,
+          fontWeight: "600",
+        }}
+      >
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+/* =========================================================
+   RECOMMENDATION CARD
+========================================================= */
+
+type RecommendationCardProps = {
+  item: any;
+  onPress: (id: number) => void;
+};
+
+const RecommendationCard = memo(function RecommendationCard({
+  item,
+  onPress,
+}: RecommendationCardProps) {
+  const posterUri = item.poster_path
+    ? `https://image.tmdb.org/t/p/w342${item.poster_path}`
+    : "https://placehold.co/342x513/1a0533/FFF?text=No+Image";
+
+  const year = item.release_date?.split("-")[0] ?? "";
+
+  return (
+    <TouchableOpacity
+      onPress={() => onPress(item.id)}
+      activeOpacity={0.75}
+      style={{
+        width: 110,
+        marginRight: 12,
+      }}
+    >
+      {/* Poster */}
+      <View
+        style={{
+          borderRadius: 10,
+          overflow: "hidden",
+          backgroundColor: "#1a1a2e",
+          elevation: 6,
+        }}
+      >
+        <Image
+          source={{
+            uri: posterUri,
           }}
-        >
-          <Image
-            source={{ uri: posterUri }}
-            style={{ width: 110, height: 160 }}
-            resizeMode="cover"
-          />
-        </View>
+          style={{
+            width: 110,
+            height: 160,
+          }}
+          resizeMode="cover"
+        />
+      </View>
+
+      {/* Title */}
+      <Text
+        style={{
+          color: "#fff",
+          fontSize: 11,
+          fontWeight: "600",
+          marginTop: 6,
+          lineHeight: 15,
+        }}
+        numberOfLines={2}
+      >
+        {item.title || item.name}
+      </Text>
+
+      {/* Year */}
+      {year ? (
         <Text
           style={{
-            color: "#fff",
-            fontSize: 11,
-            fontWeight: "600",
-            marginTop: 6,
-            lineHeight: 15,
+            color: "rgba(255,255,255,0.45)",
+            fontSize: 10,
+            marginTop: 2,
           }}
-          numberOfLines={2}
         >
-          {item.title}
+          {year}
         </Text>
-        {year ? (
-          <Text
-            style={{
-              color: "rgba(255,255,255,0.45)",
-              fontSize: 10,
-              marginTop: 2,
-            }}
-          >
-            {year}
-          </Text>
-        ) : null}
-      </TouchableOpacity>
-    );
-  },
-);
+      ) : null}
+    </TouchableOpacity>
+  );
+});
+
+/* =========================================================
+   MOVIE DETAILS SCREEN
+========================================================= */
 
 const MovieDetails = () => {
-  const { id } = useLocalSearchParams();
+  const { id, type } = useLocalSearchParams();
+
+  /*
+   * If no type is supplied, treat it as a movie.
+   */
+  const isMovie = !type || type === "movie";
+
+  /* =======================================================
+     MOVIE DETAILS API
+  ======================================================= */
 
   const { data: movie, loading } = useFetch(() =>
     fetchMovieDetails(id as string),
   );
+
+  /* =======================================================
+     RECOMMENDATIONS API
+  ======================================================= */
 
   const { data: recommendations, loading: recsLoading } = useFetch(
     () => fetchMovieRecommendations(id as string),
     !!id && isMovie,
   );
 
+  /* =======================================================
+     RECOMMENDATION PRESS
+  ======================================================= */
+
   const handleRecommendationPress = (movieId: number) => {
     router.push({
       pathname: "/movies/[id]",
-      params: { id: movieId.toString() },
+      params: {
+        id: movieId.toString(),
+      },
     });
   };
 
-  //  Single backdrop image
+  /* =======================================================
+     BACKDROP
+  ======================================================= */
+
   const backdropUri = movie?.backdrop_path
     ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
     : movie?.poster_path
       ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
       : "https://placehold.co/1280x720/1a0533/FFF?text=No+Image";
+
+  /* =======================================================
+     LOADING STATE
+  ======================================================= */
 
   if (loading) {
     return (
@@ -154,6 +218,10 @@ const MovieDetails = () => {
     );
   }
 
+  /* =======================================================
+     MOVIE NOT FOUND
+  ======================================================= */
+
   if (!movie) {
     return (
       <View
@@ -164,19 +232,42 @@ const MovieDetails = () => {
           backgroundColor: "#0f0720",
         }}
       >
-        <Text style={{ color: "#fff" }}>Not found</Text>
+        <Text
+          style={{
+            color: "#fff",
+          }}
+        >
+          Not found
+        </Text>
       </View>
     );
   }
 
+  /* =======================================================
+     MOVIE INFORMATION
+  ======================================================= */
+
   const year = movie.release_date?.split("-")[0] ?? "";
+
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : null;
+
   const runtime = movie.runtime ? `${movie.runtime}m` : null;
+
   const genre = movie.genres?.[0]?.name ?? null;
+
   const seasons = movie.number_of_seasons ?? null;
 
+  /* =======================================================
+     SCREEN
+  ======================================================= */
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#0f0720" }}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#0f0720",
+      }}
+    >
       <StatusBar
         barStyle="light-content"
         translucent
@@ -184,19 +275,31 @@ const MovieDetails = () => {
       />
 
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{
+          paddingBottom: 120,
+        }}
         showsVerticalScrollIndicator={false}
-        // Smooth scroll feel
         decelerationRate="normal"
         scrollEventThrottle={16}
       >
-        {/* ── Hero Image — full width, single image
-             No small poster below — just one clean backdrop
-            LinearGradient fades image into dark background    */}
-        <View style={{ height: height * 0.55, position: "relative" }}>
+        {/* =================================================
+            HERO IMAGE
+        ================================================= */}
+
+        <View
+          style={{
+            height: height * 0.55,
+            position: "relative",
+          }}
+        >
           <ImageBackground
-            source={{ uri: backdropUri }}
-            style={{ width: "100%", height: "100%" }}
+            source={{
+              uri: backdropUri,
+            }}
+            style={{
+              width: "100%",
+              height: "100%",
+            }}
             resizeMode="cover"
           >
             <LinearGradient
@@ -207,11 +310,16 @@ const MovieDetails = () => {
                 "#0f0720",
               ]}
               locations={[0, 0.3, 0.75, 1]}
-              style={{ flex: 1 }}
+              style={{
+                flex: 1,
+              }}
             />
           </ImageBackground>
 
-          {/* ← Back button — top left */}
+          {/* =================================================
+              BACK BUTTON
+          ================================================= */}
+
           <TouchableOpacity
             onPress={router.back}
             style={{
@@ -226,12 +334,21 @@ const MovieDetails = () => {
               alignItems: "center",
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 18, fontWeight: "700" }}>
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 18,
+                fontWeight: "700",
+              }}
+            >
               ←
             </Text>
           </TouchableOpacity>
 
-          {/*  X Close button — top right like Image 1 */}
+          {/* =================================================
+              CLOSE BUTTON
+          ================================================= */}
+
           <TouchableOpacity
             onPress={() => router.back()}
             style={{
@@ -246,12 +363,21 @@ const MovieDetails = () => {
               alignItems: "center",
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "700" }}>
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 16,
+                fontWeight: "700",
+              }}
+            >
               ✕
             </Text>
           </TouchableOpacity>
 
-          {/* Title + meta overlaid at bottom of hero image */}
+          {/* =================================================
+              TITLE + META
+          ================================================= */}
+
           <View
             style={{
               position: "absolute",
@@ -262,7 +388,8 @@ const MovieDetails = () => {
               paddingHorizontal: 20,
             }}
           >
-            {/* Movie Title */}
+            {/* Movie title */}
+
             <Text
               style={{
                 color: "#fff",
@@ -272,9 +399,12 @@ const MovieDetails = () => {
                 lineHeight: 30,
                 letterSpacing: -0.3,
                 marginBottom: 12,
-                // Text shadow so title is readable on any image
+
                 textShadowColor: "rgba(0,0,0,0.8)",
-                textShadowOffset: { width: 0, height: 1 },
+                textShadowOffset: {
+                  width: 0,
+                  height: 1,
+                },
                 textShadowRadius: 6,
               }}
               numberOfLines={2}
@@ -282,8 +412,8 @@ const MovieDetails = () => {
               {movie.title || movie.name}
             </Text>
 
-            {/*  Meta badges row — matches Image 3 style
-                 year  □ seasons/episodes  ⚙ genre  ★ rating */}
+            {/* Meta badges */}
+
             <View
               style={{
                 flexDirection: "row",
@@ -293,22 +423,40 @@ const MovieDetails = () => {
               }}
             >
               {year ? <MetaBadge icon="📅" label={year} /> : null}
+
               {seasons ? (
                 <MetaBadge icon="□" label={`${seasons}`} />
               ) : runtime ? (
                 <MetaBadge icon="🕐" label={runtime} />
               ) : null}
+
               {genre ? <MetaBadge icon="⚙" label={genre} /> : null}
+
               {rating ? <MetaBadge icon="★" label={rating} accent /> : null}
             </View>
           </View>
         </View>
 
-        {/*  Content Section */}
-        <View style={{ paddingHorizontal: 16, marginTop: 8 }}>
-          {/* Synopsis */}
+        {/* =================================================
+            CONTENT
+        ================================================= */}
+
+        <View
+          style={{
+            paddingHorizontal: 16,
+            marginTop: 8,
+          }}
+        >
+          {/* =================================================
+              SYNOPSIS
+          ================================================= */}
+
           {movie.overview ? (
-            <View style={{ marginBottom: 28 }}>
+            <View
+              style={{
+                marginBottom: 28,
+              }}
+            >
               <Text
                 style={{
                   color: "#fff",
@@ -320,6 +468,7 @@ const MovieDetails = () => {
               >
                 Synopsis
               </Text>
+
               <Text
                 style={{
                   color: "rgba(255,255,255,0.78)",
@@ -333,9 +482,16 @@ const MovieDetails = () => {
           ) : null}
         </View>
 
-        {/* Recommendations  */}
+        {/* =================================================
+            RECOMMENDATIONS
+        ================================================= */}
+
         {isMovie && (
-          <View style={{ marginBottom: 16 }}>
+          <View
+            style={{
+              marginBottom: 16,
+            }}
+          >
             <Text
               style={{
                 color: "#fff",
@@ -348,16 +504,23 @@ const MovieDetails = () => {
               Recommendations
             </Text>
 
+            {/* Recommendation loading */}
+
             {recsLoading ? (
               <ActivityIndicator
                 color="#7B6FCD"
-                style={{ marginVertical: 16 }}
+                style={{
+                  marginVertical: 16,
+                }}
               />
             ) : recommendations && recommendations.length > 0 ? (
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
+                contentContainerStyle={{
+                  paddingHorizontal: 16,
+                  gap: 12,
+                }}
                 decelerationRate="fast"
               >
                 {recommendations.map((item: any) => (
@@ -383,18 +546,23 @@ const MovieDetails = () => {
         )}
       </ScrollView>
 
-      {/* ── Watch Movie Button — fixed at bottom ── */}
+      {/* ===================================================
+          WATCH MOVIE BUTTON
+      =================================================== */}
+
       <View
         style={{
           position: "absolute",
           bottom: 0,
           left: 0,
           right: 0,
+
           paddingHorizontal: 16,
           paddingBottom: 28,
           paddingTop: 12,
+
           backgroundColor: "rgba(15,7,32,0.97)",
-          // Subtle top border
+
           borderTopWidth: 1,
           borderTopColor: "rgba(255,255,255,0.06)",
         }}
@@ -403,19 +571,34 @@ const MovieDetails = () => {
           style={{
             backgroundColor: "#7B6FCD",
             borderRadius: 14,
+
             paddingVertical: 16,
+
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
+
             shadowColor: "#7B6FCD",
-            shadowOffset: { width: 0, height: 4 },
+            shadowOffset: {
+              width: 0,
+              height: 4,
+            },
             shadowOpacity: 0.5,
             shadowRadius: 12,
+
             elevation: 8,
           }}
           activeOpacity={0.82}
         >
-          <Text style={{ fontSize: 18, marginRight: 6 }}>▶</Text>
+          <Text
+            style={{
+              fontSize: 18,
+              marginRight: 6,
+            }}
+          >
+            ▶
+          </Text>
+
           <Text
             style={{
               color: "#fff",
