@@ -17,15 +17,15 @@ import { router, useLocalSearchParams } from "expo-router";
 import { fetchMovieDetails, fetchMovieRecommendations } from "@/services/api";
 import useFetch from "@/services/useFetch";
 
-/* =========================================================
+/* 
    SCREEN DIMENSIONS
-========================================================= */
+    */
 
 const { height } = Dimensions.get("window");
 
-/* =========================================================
+/* 
    META BADGE
-========================================================= */
+*/
 
 type MetaBadgeProps = {
   icon: string;
@@ -68,9 +68,9 @@ function MetaBadge({ icon, label, accent = false }: MetaBadgeProps) {
   );
 }
 
-/* =========================================================
+/* 
    RECOMMENDATION CARD
-========================================================= */
+ */
 
 type RecommendationCardProps = {
   item: any;
@@ -147,9 +147,9 @@ const RecommendationCard = memo(function RecommendationCard({
   );
 });
 
-/* =========================================================
+/* 
    MOVIE DETAILS SCREEN
-========================================================= */
+ */
 
 const MovieDetails = () => {
   const { id, type } = useLocalSearchParams();
@@ -159,26 +159,26 @@ const MovieDetails = () => {
    */
   const isMovie = !type || type === "movie";
 
-  /* =======================================================
+  /* 
      MOVIE DETAILS API
-  ======================================================= */
+   */
 
   const { data: movie, loading } = useFetch(() =>
     fetchMovieDetails(id as string),
   );
 
-  /* =======================================================
+  /* 
      RECOMMENDATIONS API
-  ======================================================= */
+   */
 
   const { data: recommendations, loading: recsLoading } = useFetch(
     () => fetchMovieRecommendations(id as string),
     !!id && isMovie,
   );
 
-  /* =======================================================
+  /* 
      RECOMMENDATION PRESS
-  ======================================================= */
+   */
 
   const handleRecommendationPress = (movieId: number) => {
     router.push({
@@ -189,9 +189,9 @@ const MovieDetails = () => {
     });
   };
 
-  /* =======================================================
+  /* 
      BACKDROP
-  ======================================================= */
+   */
 
   const backdropUri = movie?.backdrop_path
     ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
@@ -199,9 +199,9 @@ const MovieDetails = () => {
       ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
       : "https://placehold.co/1280x720/1a0533/FFF?text=No+Image";
 
-  /* =======================================================
+  /* 
      LOADING STATE
-  ======================================================= */
+   */
 
   if (loading) {
     return (
@@ -218,9 +218,9 @@ const MovieDetails = () => {
     );
   }
 
-  /* =======================================================
+  /* 
      MOVIE NOT FOUND
-  ======================================================= */
+   */
 
   if (!movie) {
     return (
@@ -243,9 +243,9 @@ const MovieDetails = () => {
     );
   }
 
-  /* =======================================================
+  /* 
      MOVIE INFORMATION
-  ======================================================= */
+   */
 
   const year = movie.release_date?.split("-")[0] ?? "";
 
@@ -257,9 +257,9 @@ const MovieDetails = () => {
 
   const seasons = movie.number_of_seasons ?? null;
 
-  /* =======================================================
+  /* 
      SCREEN
-  ======================================================= */
+   */
 
   return (
     <View
@@ -282,9 +282,9 @@ const MovieDetails = () => {
         decelerationRate="normal"
         scrollEventThrottle={16}
       >
-        {/* =================================================
+        {/* 
             HERO IMAGE
-        ================================================= */}
+         */}
 
         <View
           style={{
@@ -316,9 +316,9 @@ const MovieDetails = () => {
             />
           </ImageBackground>
 
-          {/* =================================================
+          {/* 
               BACK BUTTON
-          ================================================= */}
+           */}
 
           <TouchableOpacity
             onPress={router.back}
@@ -345,9 +345,9 @@ const MovieDetails = () => {
             </Text>
           </TouchableOpacity>
 
-          {/* =================================================
+          {/* 
               CLOSE BUTTON
-          ================================================= */}
+           */}
 
           <TouchableOpacity
             onPress={() => router.back()}
@@ -374,9 +374,9 @@ const MovieDetails = () => {
             </Text>
           </TouchableOpacity>
 
-          {/* =================================================
+          {/* 
               TITLE + META
-          ================================================= */}
+           */}
 
           <View
             style={{
@@ -437,9 +437,9 @@ const MovieDetails = () => {
           </View>
         </View>
 
-        {/* =================================================
+        {/* 
             CONTENT
-        ================================================= */}
+         */}
 
         <View
           style={{
@@ -447,9 +447,9 @@ const MovieDetails = () => {
             marginTop: 8,
           }}
         >
-          {/* =================================================
+          {/* 
               SYNOPSIS
-          ================================================= */}
+           */}
 
           {movie.overview ? (
             <View
@@ -482,9 +482,9 @@ const MovieDetails = () => {
           ) : null}
         </View>
 
-        {/* =================================================
+        {/* 
             RECOMMENDATIONS
-        ================================================= */}
+         */}
 
         {isMovie && (
           <View
@@ -546,9 +546,9 @@ const MovieDetails = () => {
         )}
       </ScrollView>
 
-      {/* ===================================================
+      {/* 
           WATCH MOVIE BUTTON
-      =================================================== */}
+       */}
 
       <View
         style={{

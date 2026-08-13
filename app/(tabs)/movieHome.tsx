@@ -1,20 +1,19 @@
+import HeroSlider from "@/components/HeroSlider";
+import SeriesCard from "@/components/SeriesCard";
+import TopBar from "@/components/TopBar";
+import useWebSeriesPage from "@/services/useWebSeriespage";
+import { memo, useCallback } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import { memo, useCallback } from "react";
-import HeroSlider from "@/components/HeroSlider";
-import SeriesCard from "@/components/SeriesCard";
-import useWebSeriesPage from "@/services/useWebSeriespage";
-import TopBar from "@/components/TopBar";
 
-const MemoSeriesCard = memo(({ item }: { item: any }) => (
-  <SeriesCard series={item} />
-));
+const MemoSeriesCard = memo(function MemoSeriesCard({ item }: { item: any }) {
+  return <SeriesCard series={item} />;
+});
 
 export default function WebSeriesScreen() {
   const {
@@ -98,7 +97,13 @@ export default function WebSeriesScreen() {
         <View style={{ height: 24 }} />
       </>
     ),
-    [heroSlides, trendingSeries, recentlyCompleted, upcomingSeries, renderSeriesCard],
+    [
+      heroSlides,
+      trendingSeries,
+      recentlyCompleted,
+      upcomingSeries,
+      renderSeriesCard,
+    ],
   );
 
   if (loading) {

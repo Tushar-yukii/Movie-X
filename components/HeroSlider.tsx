@@ -1,16 +1,16 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  FlatList,
-} from "react-native";
+import { HeroSlide } from "@/services/useHeroAnime";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { HeroSlide } from "@/services/useHeroAnime";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const { width, height } = Dimensions.get("window");
 const SLIDE_INTERVAL = 5000;
