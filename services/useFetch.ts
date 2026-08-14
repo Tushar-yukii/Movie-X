@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 
-// useFetch(fetchMovies)
-
 const useFetch = <T>(fetchFunction: () => Promise<T>, autoFetch = true) => {
   const [data, setData] = useState<T | null>(null);
 

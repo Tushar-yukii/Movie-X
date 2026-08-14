@@ -15,7 +15,7 @@ import useTrendingMovies from "@/services/useTrendingMovies";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 
 import {
   ActivityIndicator,
@@ -31,7 +31,7 @@ import {
 } from "react-native";
 
 /* 
-   MEMOIZED CARDS
+   Memoized cards
  */
 
 const MemoTrendingCard = memo(function MemoTrendingCard({
@@ -47,14 +47,14 @@ const MemoAnimeCard = memo(function MemoAnimeCard({ item }: { item: any }) {
 });
 
 /* 
-   HOME SCREEN
+   Home screen
  */
 
 export default function Index() {
   const router = useRouter();
 
   /* 
-     SEARCH STATE
+     Search state
    */
 
   const [searchVisible, setSearchVisible] = useState(false);
@@ -63,13 +63,13 @@ export default function Index() {
   const [searchLoading, setSearchLoading] = useState(false);
 
   /* 
-     HERO
-  */
+     Hero
+   */
 
   const { slides, loading: heroLoading } = useHeroAnime();
 
   /* 
-     TRENDING ANIME
+     Trending anime
    */
 
   const {
@@ -79,8 +79,8 @@ export default function Index() {
   } = useTrendingAnime();
 
   /* 
-     TRNDING MOVIES
-  */
+     Trending movies
+   */
 
   const {
     trendingMovies,
@@ -89,64 +89,105 @@ export default function Index() {
   } = useTrendingMovies();
 
   /* 
-     MOVIES
-     
-     We don't need the movie data here right now.
-     We only need loading + error state.
+     Top series
+
+     IMPORTANT:
+     This function is memoized.
+     Therefore useFetch does not receive a new
+     function on every render.
    */
 
-  const { loading: moviesLoading, error: moviesError } = useFetch(() =>
-    fetchMovies({ query: "" }),
-  );
+  const fetchTopSeriesData = useCallback(() => {
+    return fetchTopSeries();
+  }, []);
+
+  const {
+    data: topSeries,
+    loading: topSeriesLoading,
+    error: topSeriesError,
+  } = useFetch(fetchTopSeriesData);
 
   /* 
-     TOP SERIES
-  */
+     Remove duplicate top series
 
-  const { data: topSeries, loading: topSeriesLoading } = useFetch(() =>
-    fetchTopSeries(),
-  );
+     Example:
+
+     1438
+     1438
+     1523
+
+     becomes:
+
+     1438
+     1523
+   */
+
+  const uniqueTopSeries = useMemo(() => {
+    if (!topSeries || !Array.isArray(topSeries)) {
+      return [];
+    }
+
+    const seen = new Set<number>();
+
+    return topSeries.filter((item: any) => {
+      if (!item?.id) {
+        return false;
+      }
+
+      if (seen.has(item.id)) {
+        return false;
+      }
+
+      seen.add(item.id);
+      return true;
+    });
+  }, [topSeries]);
 
   /* 
-     GLOBAL LOADING / ERROR
-  */
+     Global loading
+   */
 
   const isLoading =
-    heroLoading ||
-    animeLoading ||
-    trendingLoading ||
-    moviesLoading ||
-    topSeriesLoading;
-
-  const isError = animeError || trendingError || moviesError;
+    heroLoading || animeLoading || trendingLoading || topSeriesLoading;
 
   /* 
-     ANIME CARD RENDERER
+     Global error
    */
 
-  const renderAnimeCard = useCallback(
-    ({ item }: { item: any }) => <MemoAnimeCard item={item} />,
-    [],
-  );
+  const errorMessage =
+    animeError?.message ||
+    trendingError?.message ||
+    topSeriesError?.message ||
+    null;
 
   /* 
-     TRENDING MOVIE CARD RENDERER
+     Anime card renderer
    */
 
-  const renderTrendingCard = useCallback(
-    ({ item }: { item: any }) => <MemoTrendingCard item={item} />,
-    [],
-  );
+  const renderAnimeCard = useCallback(({ item }: { item: any }) => {
+    return <MemoAnimeCard item={item} />;
+  }, []);
 
   /* 
-     SEARCH
+     Trending movie card renderer
    */
 
-  const handleSearch = async (text: string) => {
+  const renderTrendingCard = useCallback(({ item }: { item: any }) => {
+    return <MemoTrendingCard item={item} />;
+  }, []);
+
+  /* 
+     Search
+   */
+
+  const handleSearch = useCallback(async (text: string) => {
     setSearchQuery(text);
 
-    if (text.length < 2) {
+    const query = text.trim();
+
+    if (query.length < 2) {
       setSearchResults([]);
+      setSearchLoading(false);
       return;
     }
 
@@ -154,82 +195,81 @@ export default function Index() {
 
     try {
       const results = await fetchMovies({
-        query: text,
+        query,
       });
 
       setSearchResults(results);
-    } catch (err) {
-      console.error("Search error:", err);
+    } catch (error) {
+      console.error("Search error:", error);
+      setSearchResults([]);
     } finally {
       setSearchLoading(false);
     }
-  };
+  }, []);
 
   /* 
-     CLOSE SEARCH
+     Close search
    */
 
-  const closeSearch = () => {
+  const closeSearch = useCallback(() => {
     setSearchVisible(false);
     setSearchQuery("");
     setSearchResults([]);
-  };
+    setSearchLoading(false);
+  }, []);
 
   /* 
-     LIST HEADER
-     
-     IMPORTANT:
-     All values used inside this callback are included
-     in the dependency array below.
+     Open search
+   */
+
+  const openSearch = useCallback(() => {
+    setSearchVisible(true);
+  }, []);
+
+  /* 
+     Home list header
    */
 
   const ListHeader = useCallback(() => {
     /* 
-       LOADING
+       Loading
      */
 
     if (isLoading) {
       return (
-        <ActivityIndicator
-          size="large"
-          color="#AB8BFF"
-          style={{
-            marginTop: 120,
-          }}
-        />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#AB8BFF" />
+        </View>
       );
     }
 
     /* 
-       ERROR
+       Error
      */
 
-    if (isError) {
+    if (errorMessage) {
       return (
-        <Text style={styles.errorText}>
-          Error:{" "}
-          {animeError?.message ||
-            trendingError?.message ||
-            moviesError?.message}
-        </Text>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>Something went wrong</Text>
+
+          <Text style={styles.errorText}>{errorMessage}</Text>
+        </View>
       );
     }
 
     /* 
-       MAIN HOME CONTENT
+       Main home content
      */
 
     return (
       <>
-        {/* 
-            HERO SLIDER
-         */}
+        {/* Hero */}
 
-        <HeroSlider slides={slides} label="Anime" type="tv" />
+        {slides.length > 0 && (
+          <HeroSlider slides={slides} label="Anime" type="tv" />
+        )}
 
-        {/* 
-            TRENDING ANIME
-         */}
+        {/* Trending anime */}
 
         {trendingAnime.length > 0 && (
           <View style={styles.section}>
@@ -239,12 +279,9 @@ export default function Index() {
               horizontal
               showsHorizontalScrollIndicator={false}
               data={trendingAnime}
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                gap: 2,
-              }}
+              contentContainerStyle={styles.horizontalContent}
               renderItem={renderAnimeCard}
-              keyExtractor={(item) => item.anime_id.toString()}
+              keyExtractor={(item, index) => `anime-${item.anime_id}-${index}`}
               decelerationRate="fast"
               initialNumToRender={4}
               maxToRenderPerBatch={4}
@@ -253,9 +290,7 @@ export default function Index() {
           </View>
         )}
 
-        {/* 
-            TRENDING MOVIES
-         */}
+        {/* Trending movies */}
 
         {trendingMovies.length > 0 && (
           <View style={styles.section}>
@@ -265,12 +300,9 @@ export default function Index() {
               horizontal
               showsHorizontalScrollIndicator={false}
               data={trendingMovies}
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                gap: 2,
-              }}
+              contentContainerStyle={styles.horizontalContent}
               renderItem={renderTrendingCard}
-              keyExtractor={(item) => item.movie_id.toString()}
+              keyExtractor={(item, index) => `movie-${item.movie_id}-${index}`}
               decelerationRate="fast"
               initialNumToRender={4}
               maxToRenderPerBatch={4}
@@ -279,24 +311,19 @@ export default function Index() {
           </View>
         )}
 
-        {/* =
-            TOP SERIES
-        = */}
+        {/* Top series */}
 
-        {topSeries && topSeries.length > 0 && (
+        {uniqueTopSeries.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Top Series</Text>
 
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                paddingHorizontal: 16,
-                gap: 2,
-              }}
+              contentContainerStyle={styles.horizontalContent}
               decelerationRate="fast"
             >
-              {topSeries.map((item: any, index: number) => (
+              {uniqueTopSeries.map((item: any) => (
                 <View key={`top-series-${item.id}`} style={styles.rankedCard}>
                   <SeriesCard
                     series={{
@@ -314,66 +341,44 @@ export default function Index() {
           </View>
         )}
 
-        {/* Bottom spacing */}
-        <View style={{ height: 24 }} />
+        <View style={styles.bottomSpacing} />
       </>
     );
   }, [
     isLoading,
-    isError,
-
+    errorMessage,
     slides,
-
     trendingAnime,
     trendingMovies,
-    topSeries,
-
-    animeError?.message,
-    trendingError?.message,
-    moviesError?.message,
-
+    uniqueTopSeries,
     renderAnimeCard,
     renderTrendingCard,
   ]);
 
-  /* =
-     MAIN SCREEN
-  = */
+  /* 
+     Main screen
+   */
 
   return (
     <View style={styles.container}>
-      {/* 
-          TOP BAR
-       */}
-
-      <TopBar onSearchPress={() => setSearchVisible(true)} searchTab="Movies" />
-
-      {/* 
-          MAIN LIST
-       */}
+      <TopBar onSearchPress={openSearch} searchTab="Movies" />
 
       <FlatList
         data={[]}
         renderItem={null}
         ListHeaderComponent={ListHeader}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingBottom: 100,
-        }}
+        contentContainerStyle={styles.mainListContent}
       />
 
-      {/* 
-          SEARCH OVERLAY
-       */}
+      {/* Search overlay */}
 
       {searchVisible && (
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.searchOverlay}
         >
-          {/* 
-              SEARCH INPUT
-           */}
+          {/* Search input */}
 
           <View style={styles.searchInputRow}>
             <Image
@@ -389,60 +394,45 @@ export default function Index() {
               placeholderTextColor="#6B7280"
               value={searchQuery}
               onChangeText={handleSearch}
-              autoFocus={true}
+              autoFocus
               returnKeyType="search"
               autoCapitalize="none"
             />
 
-            <TouchableOpacity onPress={closeSearch}>
+            <TouchableOpacity onPress={closeSearch} activeOpacity={0.7}>
               <Text style={styles.closeBtn}>✕</Text>
             </TouchableOpacity>
           </View>
 
-          {/* 
-              SEARCH LOADING
-           */}
+          {/* Search loading */}
 
           {searchLoading && (
-            <ActivityIndicator
-              color="#6C63FF"
-              style={{
-                marginTop: 24,
-              }}
-            />
+            <ActivityIndicator color="#6C63FF" style={styles.searchLoader} />
           )}
 
-          {/*
-              INITIAL SEARCH MESSAGE
-           */}
+          {/* Initial message */}
 
-          {!searchLoading && searchQuery.length < 2 && (
+          {!searchLoading && searchQuery.trim().length < 2 && (
             <Text style={styles.noResults}>Start typing to search...</Text>
           )}
 
-          {/* 
-              NO RESULTS
-         */}
+          {/* No results */}
 
           {!searchLoading &&
-            searchQuery.length >= 2 &&
+            searchQuery.trim().length >= 2 &&
             searchResults.length === 0 && (
               <Text style={styles.noResults}>
                 No results found for {searchQuery}
               </Text>
             )}
 
-          {/*
-              SEARCH RESULTS
-          */}
+          {/* Search results */}
 
           {!searchLoading && searchResults.length > 0 && (
             <FlatList
               data={searchResults}
-              keyExtractor={(item) => item.id.toString()}
-              contentContainerStyle={{
-                paddingBottom: 100,
-              }}
+              keyExtractor={(item, index) => `search-${item.id}-${index}`}
+              contentContainerStyle={styles.searchResultsContent}
               keyboardShouldPersistTaps="handled"
               ItemSeparatorComponent={() => <View style={styles.separator} />}
               renderItem={({ item }) => (
@@ -461,10 +451,6 @@ export default function Index() {
                     });
                   }}
                 >
-                  {/* 
-                        POSTER
-                    */}
-
                   <Image
                     source={{
                       uri: item.poster_path
@@ -474,8 +460,6 @@ export default function Index() {
                     style={styles.resultPoster}
                     contentFit="cover"
                   />
-
-                  {/* RESULT INFORMATION */}
 
                   <View style={styles.resultInfo}>
                     <Text style={styles.resultTitle} numberOfLines={2}>
@@ -502,12 +486,43 @@ export default function Index() {
   );
 }
 
-// STYLES
+/* 
+   Styles
+ */
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#0D0D1A",
+  },
+
+  mainListContent: {
+    paddingBottom: 100,
+  },
+
+  loadingContainer: {
+    minHeight: 500,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  errorContainer: {
+    paddingHorizontal: 20,
+    marginTop: 120,
+    alignItems: "center",
+  },
+
+  errorTitle: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "700",
+    marginBottom: 8,
+  },
+
+  errorText: {
+    color: "#EF4444",
+    fontSize: 14,
+    textAlign: "center",
   },
 
   section: {
@@ -522,13 +537,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
 
-  errorText: {
-    color: "white",
-    padding: 20,
-    marginTop: 120,
+  horizontalContent: {
+    paddingHorizontal: 16,
+    gap: 12,
   },
 
-  // SEARCH OVERLAY
+  bottomSpacing: {
+    height: 24,
+  },
+
+  /* Search */
 
   searchOverlay: {
     position: "absolute",
@@ -536,28 +554,20 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-
     backgroundColor: "#0D0D1A",
-
     zIndex: 20,
-
     paddingTop: Platform.OS === "ios" ? 56 : 48,
   },
 
   searchInputRow: {
     flexDirection: "row",
     alignItems: "center",
-
     backgroundColor: "#1A1A2E",
-
     marginHorizontal: 16,
     marginBottom: 8,
-
     borderRadius: 12,
-
     paddingHorizontal: 12,
     paddingVertical: 12,
-
     gap: 8,
   },
 
@@ -568,40 +578,37 @@ const styles = StyleSheet.create({
 
   searchInput: {
     flex: 1,
-
     color: "#FFFFFF",
-
     fontSize: 15,
-
     paddingVertical: 0,
   },
 
   closeBtn: {
     color: "#6B7280",
-
     fontSize: 18,
-
     paddingHorizontal: 4,
   },
 
-  //  SEARCH RESULTS
+  searchLoader: {
+    marginTop: 24,
+  },
+
+  searchResultsContent: {
+    paddingBottom: 100,
+  },
 
   resultRow: {
     flexDirection: "row",
     alignItems: "center",
-
     paddingHorizontal: 16,
     paddingVertical: 12,
-
     gap: 12,
   },
 
   resultPoster: {
     width: 52,
     height: 78,
-
     borderRadius: 6,
-
     backgroundColor: "#1A1A2E",
   },
 
@@ -611,89 +618,51 @@ const styles = StyleSheet.create({
 
   resultTitle: {
     color: "#FFFFFF",
-
     fontSize: 15,
-
     fontWeight: "700",
-
     marginBottom: 4,
   },
 
   resultMeta: {
     flexDirection: "row",
     alignItems: "center",
-
     gap: 6,
   },
 
   resultYear: {
     color: "#6B7280",
-
     fontSize: 12,
   },
 
   metaDot: {
     width: 3,
     height: 3,
-
     borderRadius: 2,
-
     backgroundColor: "#6B7280",
   },
 
   resultType: {
     color: "#6B7280",
-
     fontSize: 12,
   },
 
   separator: {
     height: 1,
-
     backgroundColor: "rgba(255,255,255,0.06)",
-
     marginHorizontal: 16,
   },
 
   noResults: {
     color: "#6B7280",
-
     fontSize: 14,
-
     textAlign: "center",
-
     marginTop: 40,
   },
 
-  //TOP SERIES
+  /* Top series */
 
   rankedCard: {
     position: "relative",
-
-    marginRight: 12,
-  },
-
-  rankBadge: {
-    position: "absolute",
-
-    top: 8,
-    left: 8,
-
-    zIndex: 10,
-
-    backgroundColor: "#6C63FF",
-
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-
-    borderRadius: 8,
-  },
-
-  rankNumber: {
-    color: "#FFFFFF",
-
-    fontSize: 11,
-
-    fontWeight: "800",
+    marginRight: 0,
   },
 });

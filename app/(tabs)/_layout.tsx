@@ -3,7 +3,6 @@ import { images } from "@/constants/images";
 import { Tabs } from "expo-router";
 import React from "react";
 import { Image, ImageBackground, Text, View } from "react-native";
-
 const TabIcon = ({ focused, icon, title }: any) => {
   if (focused) {
     return (
@@ -12,6 +11,7 @@ const TabIcon = ({ focused, icon, title }: any) => {
         style={{
           flexDirection: "row",
           minWidth: 90,
+
           minHeight: 40,
           marginTop: 16,
           justifyContent: "center",
