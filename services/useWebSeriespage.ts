@@ -1,18 +1,12 @@
-// services/useWebSeriesPage.ts
-// Single hook that fetches ALL 4 sections at once
-// Using Promise.all so all 4 API calls happen simultaneously
-// instead of one by one — 4x faster
-
 import { useEffect, useState } from "react";
 import {
   fetchPopularWebSeries,
-  fetchTrendingWebSeries,
   fetchRecentlyCompletedSeries,
-  fetchUpcomingWebSeries,
+  fetchTopSeries,
+  fetchTrendingWebSeries,
   WebSeries,
 } from "./api";
 
-// HeroSlide shape — same as home page hero slider
 export type HeroSlide = {
   id: number;
   title: string;
@@ -22,7 +16,6 @@ export type HeroSlide = {
   overview: string;
 };
 
-// SeriesCard shape — used for horizontal scroll rows
 export type SeriesCard = {
   series_id: number;
   title: string;
@@ -34,12 +27,11 @@ type UseWebSeriesPageReturn = {
   heroSlides: HeroSlide[];
   trendingSeries: SeriesCard[];
   recentlyCompleted: SeriesCard[];
-  upcomingSeries: SeriesCard[];
+  topSeries: SeriesCard[];
   loading: boolean;
   error: Error | null;
 };
 
-// Helper — maps WebSeries → SeriesCard shape
 const toCard = (s: WebSeries): SeriesCard => ({
   series_id: s.id,
   title: s.name,
@@ -49,7 +41,6 @@ const toCard = (s: WebSeries): SeriesCard => ({
   release_date: s.first_air_date ?? null,
 });
 
-// Helper — maps WebSeries → HeroSlide shape
 const toSlide = (s: WebSeries): HeroSlide => ({
   id: s.id,
   title: s.name,
@@ -67,42 +58,60 @@ const useWebSeriesPage = (): UseWebSeriesPageReturn => {
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [trendingSeries, setTrendingSeries] = useState<SeriesCard[]>([]);
   const [recentlyCompleted, setRecentlyCompleted] = useState<SeriesCard[]>([]);
-  const [upcomingSeries, setUpcomingSeries] = useState<SeriesCard[]>([]);
+  const [topSeries, setTopSeries] = useState<SeriesCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const load = async () => {
       try {
         setLoading(true);
+        setError(null);
 
-        // All 4 API calls fire simultaneously — much faster
-        const [popular, trending, completed, upcoming] = await Promise.all([
+        const [popular, trending, completed, top] = await Promise.all([
           fetchPopularWebSeries(),
           fetchTrendingWebSeries(),
           fetchRecentlyCompletedSeries(),
-          fetchUpcomingWebSeries(),
+          fetchTopSeries(),
         ]);
+
+        if (!mounted) {
+          return;
+        }
 
         setHeroSlides(popular.map(toSlide));
         setTrendingSeries(trending.map(toCard));
         setRecentlyCompleted(completed.map(toCard));
-        setUpcomingSeries(upcoming.map(toCard));
+        setTopSeries(top.map(toCard));
       } catch (err) {
-        setError(err instanceof Error ? err : new Error("Unknown error"));
+        if (!mounted) {
+          return;
+        }
+
+        setError(
+          err instanceof Error ? err : new Error("Unable to load web series"),
+        );
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     load();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return {
     heroSlides,
     trendingSeries,
     recentlyCompleted,
-    upcomingSeries,
+    topSeries,
     loading,
     error,
   };

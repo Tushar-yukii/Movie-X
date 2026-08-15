@@ -298,8 +298,6 @@ export default function Index() {
 
         {/* Top series */}
 
-        {/* Top series */}
-
         {uniqueTopSeries.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Top Series</Text>

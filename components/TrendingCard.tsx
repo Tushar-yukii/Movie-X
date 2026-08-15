@@ -1,7 +1,7 @@
-import { Link } from "expo-router";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+import { Link } from "expo-router";
 import { memo } from "react";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 type TrendingCardProps = {
   movie: {
@@ -36,14 +36,9 @@ const TrendingCard = ({
         <Text style={styles.title} numberOfLines={2}>
           {title}
         </Text>
-        <View className="flex-row items-center justify-between">
-          <Text className="text-xs text-slate-500 font-medium mt-1">
-            {release_date?.split("-")[0]}
-          </Text>
-          <Text className="text-xs font-medium text-light-300 uppercase">
-            Movie
-          </Text>
-        </View>
+        <Text className="text-xs text-slate-500 font-medium mt-1">
+          {release_date?.split("-")[0]}
+        </Text>
       </TouchableOpacity>
     </Link>
   );
