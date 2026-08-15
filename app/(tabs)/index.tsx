@@ -107,21 +107,6 @@ export default function Index() {
     error: topSeriesError,
   } = useFetch(fetchTopSeriesData);
 
-  /* 
-     Remove duplicate top series
-
-     Example:
-
-     1438
-     1438
-     1523
-
-     becomes:
-
-     1438
-     1523
-   */
-
   const uniqueTopSeries = useMemo(() => {
     if (!topSeries || !Array.isArray(topSeries)) {
       return [];
@@ -313,6 +298,8 @@ export default function Index() {
 
         {/* Top series */}
 
+        {/* Top series */}
+
         {uniqueTopSeries.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Top Series</Text>
@@ -320,7 +307,7 @@ export default function Index() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.horizontalContent}
+              contentContainerStyle={styles.horizontalstyle}
               decelerationRate="fast"
             >
               {uniqueTopSeries.map((item: any) => (
@@ -340,7 +327,6 @@ export default function Index() {
             </ScrollView>
           </View>
         )}
-
         <View style={styles.bottomSpacing} />
       </>
     );
@@ -539,7 +525,11 @@ const styles = StyleSheet.create({
 
   horizontalContent: {
     paddingHorizontal: 16,
-    gap: 12,
+    gap: 2,
+  },
+  horizontalstyle: {
+    paddingHorizontal: 16,
+    gap: 2,
   },
 
   bottomSpacing: {
@@ -663,6 +653,6 @@ const styles = StyleSheet.create({
 
   rankedCard: {
     position: "relative",
-    marginRight: 0,
+    marginRight: 12,
   },
 });
