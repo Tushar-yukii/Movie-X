@@ -24,7 +24,7 @@ type Props = {
 const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
   const router = useRouter();
 
-  // Controls profile popup
+  // profile popup
   const [profileMenuVisible, setProfileMenuVisible] = useState(false);
 
   // Search
@@ -51,8 +51,6 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
 
   return (
     <>
-      {/* ================= TOP BAR ================= */}
-
       <View style={styles.topBar}>
         <LinearGradient
           colors={["rgba(0,0,0,0.55)", "transparent"]}
@@ -88,8 +86,6 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
         </TouchableOpacity>
       </View>
 
-      {/* ================= PROFILE BOTTOM MENU ================= */}
-
       <Modal
         visible={profileMenuVisible}
         transparent
@@ -100,9 +96,7 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
           {/* Dark background */}
           <Pressable style={styles.modalBackdrop} onPress={closeProfileMenu} />
 
-          {/* Bottom Sheet */}
           <View style={styles.bottomSheet}>
-            {/* Small handle */}
             <View style={styles.sheetHandle} />
 
             {/* VIEW PROFILE */}
@@ -127,7 +121,6 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
               <Text style={styles.arrow}>›</Text>
             </TouchableOpacity>
 
-            {/* SETTINGS */}
             <TouchableOpacity
               style={styles.menuItem}
               activeOpacity={0.7}
@@ -144,7 +137,6 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
               <Text style={styles.arrow}>›</Text>
             </TouchableOpacity>
 
-            {/* CANCEL */}
             <TouchableOpacity
               style={styles.cancelButton}
               activeOpacity={0.8}
@@ -161,13 +153,7 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
 
 export default TopBar;
 
-/* =====================================================
-   STYLES
-===================================================== */
-
 const styles = StyleSheet.create({
-  /* ---------- TOP BAR ---------- */
-
   topBar: {
     paddingTop:
       Platform.OS === "android" ? (StatusBar.currentHeight ?? 24) + 8 : 52,
@@ -238,8 +224,6 @@ const styles = StyleSheet.create({
     height: 18,
   },
 
-  /* ---------- MODAL ---------- */
-
   modalContainer: {
     flex: 1,
     justifyContent: "flex-end",
@@ -249,8 +233,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.45)",
   },
-
-  /* ---------- BOTTOM SHEET ---------- */
 
   bottomSheet: {
     backgroundColor: "#1C1C23",
@@ -284,8 +266,6 @@ const styles = StyleSheet.create({
 
     marginBottom: 24,
   },
-
-  /* ---------- MENU ITEM ---------- */
 
   menuItem: {
     height: 82,
@@ -343,8 +323,6 @@ const styles = StyleSheet.create({
 
     marginTop: -3,
   },
-
-  /* ---------- CANCEL ---------- */
 
   cancelButton: {
     height: 76,
