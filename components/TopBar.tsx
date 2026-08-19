@@ -1,8 +1,3 @@
-import { icons } from "@/constants/icons";
-import { Image } from "expo-image";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { useState } from "react";
 import {
   Modal,
   Platform,
@@ -14,6 +9,13 @@ import {
   View,
 } from "react-native";
 
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+
+import { icons } from "@/constants/icons";
+
 type SearchTab = "Series" | "Movies" | "Anime";
 
 type Props = {
@@ -24,33 +26,73 @@ type Props = {
 const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
   const router = useRouter();
 
-  // profile popup
+  // Controls the profile bottom sheet
   const [profileMenuVisible, setProfileMenuVisible] = useState(false);
 
-  // Search
+  // ----------------------------------------
+  // SEARCH
+  // ----------------------------------------
+
   const handleSearchPress = () => {
     if (onSearchPress) {
       onSearchPress();
     } else {
       router.push({
         pathname: "/search-page",
-        params: { defaultTab: searchTab },
+        params: {
+          defaultTab: searchTab,
+        },
       });
     }
   };
 
-  // Open profile popup
-  const handlePersonPress = () => {
+  // ----------------------------------------
+  // PROFILE BUTTON
+  // ----------------------------------------
+
+  const handleProfilePress = () => {
     setProfileMenuVisible(true);
   };
 
-  // Close profile popup
-  const closeProfileMenu = () => {
+  // ----------------------------------------
+  // VIEW PROFILE
+  // ----------------------------------------
+
+  const handleViewProfile = () => {
+    // Close bottom sheet first
+    setProfileMenuVisible(false);
+
+    // IMPORTANT:
+    // This is outside /(tabs), so Profile will NOT
+    // show the bottom navigation.
+    router.push("/profile");
+  };
+
+  // ----------------------------------------
+  // SETTINGS
+  // ----------------------------------------
+
+  const handleSettings = () => {
+    setProfileMenuVisible(false);
+
+    // We will build Settings later.
+    // For now this only closes the menu.
+  };
+
+  // ----------------------------------------
+  // CANCEL
+  // ----------------------------------------
+
+  const handleCancel = () => {
     setProfileMenuVisible(false);
   };
 
   return (
     <>
+      {/* =========================
+          TOP BAR
+      ========================== */}
+
       <View style={styles.topBar}>
         <LinearGradient
           colors={["rgba(0,0,0,0.55)", "transparent"]}
@@ -58,8 +100,9 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
         />
 
         {/* PERSON BUTTON */}
+
         <TouchableOpacity
-          onPress={handlePersonPress}
+          onPress={handleProfilePress}
           style={styles.personCircle}
           activeOpacity={0.8}
         >
@@ -72,6 +115,7 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
         </TouchableOpacity>
 
         {/* SEARCH BUTTON */}
+
         <TouchableOpacity
           onPress={handleSearchPress}
           style={styles.searchCircle}
@@ -86,33 +130,43 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
         </TouchableOpacity>
       </View>
 
+      {/* =========================
+          PROFILE BOTTOM SHEET
+      ========================== */}
+
       <Modal
         visible={profileMenuVisible}
         transparent
         animationType="slide"
-        onRequestClose={closeProfileMenu}
+        onRequestClose={handleCancel}
       >
         <View style={styles.modalContainer}>
-          {/* Dark background */}
-          <Pressable style={styles.modalBackdrop} onPress={closeProfileMenu} />
+          {/* Transparent area above sheet */}
+
+          <Pressable style={styles.modalOutside} onPress={handleCancel} />
+
+          {/* =========================
+              BOTTOM SHEET
+          ========================== */}
 
           <View style={styles.bottomSheet}>
+            {/* Small handle */}
+
             <View style={styles.sheetHandle} />
 
             {/* VIEW PROFILE */}
+
             <TouchableOpacity
               style={styles.menuItem}
-              activeOpacity={0.7}
-              onPress={() => {
-                // Functionality will be added later
-              }}
+              onPress={handleViewProfile}
+              activeOpacity={0.75}
             >
               <View style={styles.menuIconBox}>
                 <Image
                   source={icons.person}
                   style={styles.menuIcon}
                   contentFit="contain"
-                  tintColor="#AB8BFF"
+                  tintColor="#A78BFA"
                 />
               </View>
 
@@ -121,12 +175,12 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
               <Text style={styles.arrow}>›</Text>
             </TouchableOpacity>
 
+            {/* SETTINGS */}
+
             <TouchableOpacity
               style={styles.menuItem}
-              activeOpacity={0.7}
-              onPress={() => {
-                // Functionality will be added later
-              }}
+              onPress={handleSettings}
+              activeOpacity={0.75}
             >
               <View style={styles.menuIconBox}>
                 <Text style={styles.settingsIcon}>⚙</Text>
@@ -137,10 +191,12 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
               <Text style={styles.arrow}>›</Text>
             </TouchableOpacity>
 
+            {/* CANCEL */}
+
             <TouchableOpacity
               style={styles.cancelButton}
+              onPress={handleCancel}
               activeOpacity={0.8}
-              onPress={closeProfileMenu}
             >
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
@@ -154,11 +210,15 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
 export default TopBar;
 
 const styles = StyleSheet.create({
+  // --------------------------------
+  // TOP BAR
+  // --------------------------------
+
   topBar: {
     paddingTop:
       Platform.OS === "android" ? (StatusBar.currentHeight ?? 24) + 8 : 52,
 
-    paddingBottom: 10,
+    paddingBottom: 8,
     paddingHorizontal: 16,
 
     position: "absolute",
@@ -186,10 +246,10 @@ const styles = StyleSheet.create({
     height: 42,
     borderRadius: 21,
 
-    backgroundColor: "rgba(99, 120, 255, 0.35)",
+    backgroundColor: "rgba(99,120,255,0.35)",
 
     borderWidth: 2,
-    borderColor: "rgba(140, 160, 255, 0.9)",
+    borderColor: "rgba(140,160,255,0.9)",
 
     justifyContent: "center",
     alignItems: "center",
@@ -224,25 +284,42 @@ const styles = StyleSheet.create({
     height: 18,
   },
 
+  // --------------------------------
+  // MODAL
+  // --------------------------------
+
   modalContainer: {
     flex: 1,
+
+    // IMPORTANT:
+    // No black overlay.
+    // Your original page remains visible.
+    backgroundColor: "transparent",
+
     justifyContent: "flex-end",
   },
 
-  modalBackdrop: {
-    ...StyleSheet.absoluteFillObject,
+  modalOutside: {
+    flex: 1,
+
+    // Completely transparent.
+    // This prevents the page from becoming dark.
     backgroundColor: "transparent",
   },
 
-  bottomSheet: {
-    backgroundColor: "#1C1C23",
+  // --------------------------------
+  // BOTTOM SHEET
+  // --------------------------------
 
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+  bottomSheet: {
+    backgroundColor: "#1B1B24",
+
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
 
     paddingHorizontal: 24,
-    paddingTop: 14,
-    paddingBottom: Platform.OS === "ios" ? 34 : 24,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === "android" ? 24 : 34,
 
     shadowColor: "#000",
     shadowOffset: {
@@ -250,7 +327,7 @@ const styles = StyleSheet.create({
       height: -4,
     },
     shadowOpacity: 0.35,
-    shadowRadius: 12,
+    shadowRadius: 15,
 
     elevation: 20,
   },
@@ -258,37 +335,42 @@ const styles = StyleSheet.create({
   sheetHandle: {
     width: 42,
     height: 5,
+
     borderRadius: 3,
 
-    backgroundColor: "#777780",
+    backgroundColor: "#85858D",
 
     alignSelf: "center",
 
-    marginBottom: 24,
+    marginBottom: 22,
   },
 
+  // --------------------------------
+  // MENU ITEM
+  // --------------------------------
+
   menuItem: {
-    height: 82,
+    height: 92,
+
+    borderRadius: 22,
 
     backgroundColor: "#202027",
 
-    borderRadius: 18,
-
-    marginBottom: 14,
-
-    paddingHorizontal: 20,
-
     flexDirection: "row",
     alignItems: "center",
+
+    paddingHorizontal: 16,
+
+    marginBottom: 16,
   },
 
   menuIconBox: {
-    width: 48,
-    height: 48,
+    width: 52,
+    height: 52,
 
-    borderRadius: 15,
+    borderRadius: 16,
 
-    backgroundColor: "#19191F",
+    backgroundColor: "#17171E",
 
     justifyContent: "center",
     alignItems: "center",
@@ -297,13 +379,13 @@ const styles = StyleSheet.create({
   },
 
   menuIcon: {
-    width: 24,
-    height: 24,
+    width: 27,
+    height: 27,
   },
 
   settingsIcon: {
-    fontSize: 25,
-    color: "#AB8BFF",
+    fontSize: 27,
+    color: "#A78BFA",
   },
 
   menuText: {
@@ -312,24 +394,28 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
 
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 
   arrow: {
-    color: "#A8A8B0",
+    color: "#BDBDC5",
 
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: "300",
 
     marginTop: -3,
   },
 
+  // --------------------------------
+  // CANCEL
+  // --------------------------------
+
   cancelButton: {
     height: 76,
 
-    borderRadius: 24,
+    borderRadius: 28,
 
-    backgroundColor: "#E8B5D6",
+    backgroundColor: "#E8A9D1",
 
     justifyContent: "center",
     alignItems: "center",
@@ -338,9 +424,9 @@ const styles = StyleSheet.create({
   },
 
   cancelText: {
-    color: "#2A1B28",
+    color: "#17171E",
 
     fontSize: 19,
-    fontWeight: "600",
+    fontWeight: "700",
   },
 });
