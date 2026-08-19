@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     paddingTop:
       Platform.OS === "android" ? (StatusBar.currentHeight ?? 24) + 8 : 52,
 
-    paddingBottom: 8,
+    paddingBottom: 10,
     paddingHorizontal: 16,
 
     position: "absolute",
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
 
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.45)",
+    backgroundColor: "transparent",
   },
 
   bottomSheet: {
