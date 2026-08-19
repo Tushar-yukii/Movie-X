@@ -29,9 +29,7 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
   // Controls the profile bottom sheet
   const [profileMenuVisible, setProfileMenuVisible] = useState(false);
 
-  // ----------------------------------------
   // SEARCH
-  // ----------------------------------------
 
   const handleSearchPress = () => {
     if (onSearchPress) {
@@ -46,17 +44,15 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
     }
   };
 
-  // ----------------------------------------
   // PROFILE BUTTON
-  // ----------------------------------------
 
   const handleProfilePress = () => {
     setProfileMenuVisible(true);
   };
 
-  // ----------------------------------------
+  //
   // VIEW PROFILE
-  // ----------------------------------------
+  //
 
   const handleViewProfile = () => {
     // Close bottom sheet first
@@ -68,20 +64,17 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
     router.push("/profile");
   };
 
-  // ----------------------------------------
+  //
   // SETTINGS
-  // ----------------------------------------
+  //
 
   const handleSettings = () => {
     setProfileMenuVisible(false);
-
-    // We will build Settings later.
-    // For now this only closes the menu.
   };
 
-  // ----------------------------------------
+  //
   // CANCEL
-  // ----------------------------------------
+  //
 
   const handleCancel = () => {
     setProfileMenuVisible(false);
@@ -89,9 +82,9 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
 
   return (
     <>
-      {/* =========================
+      {/* 
           TOP BAR
-      ========================== */}
+      = */}
 
       <View style={styles.topBar}>
         <LinearGradient
@@ -130,9 +123,9 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
         </TouchableOpacity>
       </View>
 
-      {/* =========================
+      {/* 
           PROFILE BOTTOM SHEET
-      ========================== */}
+      = */}
 
       <Modal
         visible={profileMenuVisible}
@@ -145,9 +138,9 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
 
           <Pressable style={styles.modalOutside} onPress={handleCancel} />
 
-          {/* =========================
+          {/* 
               BOTTOM SHEET
-          ========================== */}
+          = */}
 
           <View style={styles.bottomSheet}>
             {/* Small handle */}
@@ -210,9 +203,9 @@ const TopBar = ({ onSearchPress, searchTab = "Movies" }: Props) => {
 export default TopBar;
 
 const styles = StyleSheet.create({
-  // --------------------------------
+  //
   // TOP BAR
-  // --------------------------------
+  //
 
   topBar: {
     paddingTop:
@@ -284,9 +277,9 @@ const styles = StyleSheet.create({
     height: 18,
   },
 
-  // --------------------------------
+  //
   // MODAL
-  // --------------------------------
+  //
 
   modalContainer: {
     flex: 1,
@@ -307,9 +300,9 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 
-  // --------------------------------
+  //
   // BOTTOM SHEET
-  // --------------------------------
+  //
 
   bottomSheet: {
     backgroundColor: "#1B1B24",
@@ -345,9 +338,9 @@ const styles = StyleSheet.create({
     marginBottom: 22,
   },
 
-  // --------------------------------
+  //
   // MENU ITEM
-  // --------------------------------
+  //
 
   menuItem: {
     height: 92,
@@ -406,9 +399,9 @@ const styles = StyleSheet.create({
     marginTop: -3,
   },
 
-  // --------------------------------
+  //
   // CANCEL
-  // --------------------------------
+  //
 
   cancelButton: {
     height: 76,

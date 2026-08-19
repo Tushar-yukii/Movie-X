@@ -17,9 +17,7 @@ import {
 } from "react-native";
 
 export default function ProfileScreen() {
-  // --------------------------------
   // USER NAME
-  // --------------------------------
 
   const [name, setName] = useState("yukki");
 
@@ -29,18 +27,14 @@ export default function ProfileScreen() {
   // Controls Edit Name modal
   const [editModalVisible, setEditModalVisible] = useState(false);
 
-  // --------------------------------
   // OPEN EDIT NAME
-  // --------------------------------
 
   const openEditName = () => {
     setEditName(name);
     setEditModalVisible(true);
   };
 
-  // --------------------------------
   // SAVE NAME
-  // --------------------------------
 
   const saveName = () => {
     const trimmedName = editName.trim();
@@ -53,9 +47,7 @@ export default function ProfileScreen() {
     setEditModalVisible(false);
   };
 
-  // --------------------------------
   // CLOSE EDIT MODAL
-  // --------------------------------
 
   const closeEditModal = () => {
     setEditModalVisible(false);
@@ -68,9 +60,9 @@ export default function ProfileScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* =========================
+        {/* 
             HEADER
-        ========================== */}
+         */}
 
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile</Text>
@@ -84,9 +76,9 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* =========================
+        {/* 
             USER CARD
-        ========================== */}
+         */}
 
         <TouchableOpacity
           style={styles.profileCard}
@@ -119,9 +111,9 @@ export default function ProfileScreen() {
           <Text style={styles.profileArrow}>›</Text>
         </TouchableOpacity>
 
-        {/* =========================
+        {/* 
             STATISTICS
-        ========================== */}
+         */}
 
         <Text style={styles.sectionTitle}>Statistics</Text>
 
@@ -193,9 +185,9 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* =========================
+        {/* 
             GENRES
-        ========================== */}
+         */}
 
         <Text style={styles.sectionTitle}>Genres</Text>
 
@@ -204,9 +196,9 @@ export default function ProfileScreen() {
         </View>
       </ScrollView>
 
-      {/* =========================
+      {/* 
           EDIT NAME MODAL
-      ========================== */}
+       */}
 
       <Modal
         visible={editModalVisible}
@@ -280,9 +272,7 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  // =================================
   // MAIN
-  // =================================
 
   container: {
     flex: 1,
@@ -295,9 +285,7 @@ const styles = StyleSheet.create({
     paddingBottom: 50,
   },
 
-  // =================================
   // HEADER
-  // =================================
 
   header: {
     flexDirection: "row",
@@ -337,9 +325,7 @@ const styles = StyleSheet.create({
     lineHeight: 42,
   },
 
-  // =================================
   // PROFILE CARD
-  // =================================
 
   profileCard: {
     height: 274,
@@ -402,9 +388,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
-  // =================================
   // SECTION
-  // =================================
 
   sectionTitle: {
     color: "#8F8F98",
@@ -415,9 +399,7 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
 
-  // =================================
   // STATISTICS
-  // =================================
 
   statisticsRow: {
     flexDirection: "row",
@@ -471,9 +453,7 @@ const styles = StyleSheet.create({
     fontSize: 23,
   },
 
-  // =================================
   // GENRES
-  // =================================
 
   genresCard: {
     height: 160,
@@ -492,9 +472,7 @@ const styles = StyleSheet.create({
     fontSize: 21,
   },
 
-  // =================================
   // EDIT NAME MODAL
-  // =================================
 
   editModalContainer: {
     flex: 1,
@@ -557,9 +535,7 @@ const styles = StyleSheet.create({
     lineHeight: 40,
   },
 
-  // =================================
   // INPUT
-  // =================================
 
   inputContainer: {
     height: 76,
@@ -606,9 +582,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
 
-  // =================================
   // SAVE
-  // =================================
 
   saveButton: {
     height: 76,
