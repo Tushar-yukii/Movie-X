@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { Text, Image, TouchableOpacity, View } from "react-native";
+import { Text, Image, TouchableOpacity } from "react-native";
 import { memo } from "react";
 
 const MovieCard = ({ id, poster_path, title, release_date }: Movie) => {

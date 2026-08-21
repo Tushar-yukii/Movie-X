@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 
-const MemoAnimeCard = memo(function MemoAnimeCard({ item }: { item: any }) {
+const MemoAnimeCard = memo(function MemoAnimePageCard({ item }: { item: any }) {
   return <AnimePageCard anime={item} />;
 });
 export default function AnimeScreen() {
