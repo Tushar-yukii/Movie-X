@@ -343,8 +343,8 @@ const styles = StyleSheet.create({
   },
 
   profileIconCircle: {
-    width: 186,
-    height: 186,
+    width: 50,
+    height: 15,
 
     borderRadius: 93,
 
@@ -357,8 +357,8 @@ const styles = StyleSheet.create({
   },
 
   profileIcon: {
-    width: 90,
-    height: 90,
+    width: 50,
+    height: 50,
   },
 
   nameContainer: {
