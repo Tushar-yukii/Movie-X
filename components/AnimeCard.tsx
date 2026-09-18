@@ -1,8 +1,7 @@
-// components/AnimeCard.tsx
-import { Link } from "expo-router";
-import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+import { Link } from "expo-router";
 import { memo } from "react";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 type AnimeCardProps = {
   anime: {
@@ -19,8 +18,11 @@ const AnimeCard = ({
   return (
     <Link
       href={{
-        pathname: "/movies/[id]", // reuse movie detail
-        params: { id: anime_id.toString(), type: "anime" },
+        pathname: "/movies/[id]",
+        params: {
+          id: anime_id.toString(),
+          type: "anime",
+        },
       }}
       asChild
     >
@@ -29,14 +31,18 @@ const AnimeCard = ({
           source={
             poster_url
               ? { uri: poster_url }
-              : { uri: "https://placehold.co/300x450/1a1a1a/FFFFFF.png" }
+              : {
+                  uri: "https://placehold.co/300x450/1a1a1a/FFFFFF.png",
+                }
           }
           style={styles.poster}
           contentFit="cover"
         />
+
         <Text style={styles.title} numberOfLines={2}>
           {title}
         </Text>
+
         <Text style={styles.year}>{release_date?.split("-")[0] ?? ""}</Text>
       </TouchableOpacity>
     </Link>
@@ -50,18 +56,21 @@ const styles = StyleSheet.create({
     width: 120,
     marginRight: 6,
   },
+
   poster: {
     width: 120,
     height: 180,
     borderRadius: 12,
     backgroundColor: "#1A1A2E",
   },
+
   title: {
     color: "#FFFFFF",
     fontSize: 12,
     fontWeight: "600",
     marginTop: 6,
   },
+
   year: {
     color: "#A0A0B0",
     fontSize: 11,

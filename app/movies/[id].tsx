@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -14,18 +14,16 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 
-import { fetchMovieDetails, fetchMovieRecommendations } from "@/services/api";
-import useFetch from "@/services/useFetch";
+import {
+  fetchMovieDetails,
+  fetchMovieRecommendations,
+  fetchTVDetails,
+} from "@/services/api";
 
-/* 
-   SCREEN DIMENSIONS
-    */
+import useFetch from "@/services/useFetch";
 
 const { height } = Dimensions.get("window");
 
-/* 
-   META BADGE
-*/
 
 type MetaBadgeProps = {
   icon: string;
@@ -68,9 +66,9 @@ function MetaBadge({ icon, label, accent = false }: MetaBadgeProps) {
   );
 }
 
-/* 
+/* -------------------------------------------------------
    RECOMMENDATION CARD
- */
+------------------------------------------------------- */
 
 type RecommendationCardProps = {
   item: any;
@@ -96,7 +94,6 @@ const RecommendationCard = memo(function RecommendationCard({
         marginRight: 12,
       }}
     >
-      {/* Poster */}
       <View
         style={{
           borderRadius: 10,
@@ -117,7 +114,6 @@ const RecommendationCard = memo(function RecommendationCard({
         />
       </View>
 
-      {/* Title */}
       <Text
         style={{
           color: "#fff",
@@ -131,7 +127,6 @@ const RecommendationCard = memo(function RecommendationCard({
         {item.title || item.name}
       </Text>
 
-      {/* Year */}
       {year ? (
         <Text
           style={{
@@ -147,61 +142,94 @@ const RecommendationCard = memo(function RecommendationCard({
   );
 });
 
-/* 
-   MOVIE DETAILS SCREEN
- */
+/* -------------------------------------------------------
+   DETAIL SCREEN
+------------------------------------------------------- */
 
 const MovieDetails = () => {
-  const { id, type } = useLocalSearchParams();
+  const { id, type } = useLocalSearchParams<{
+    id?: string;
+    type?: string;
+  }>();
 
   /*
-   * If no type is supplied, treat it as a movie.
-   */
+    type = anime
+    type = movie
+  */
+
+  const isAnime = type === "anime";
   const isMovie = !type || type === "movie";
 
-  /* 
-     MOVIE DETAILS API
-   */
+  /* -------------------------------------------------------
+     MOVIE DETAILS
+  ------------------------------------------------------- */
 
-  const { data: movie, loading } = useFetch(() =>
-    fetchMovieDetails(id as string),
+  const { data: movie, loading: movieLoading } = useFetch(
+    () => fetchMovieDetails(id as string),
+    !!id && isMovie,
   );
 
-  /* 
-     RECOMMENDATIONS API
-   */
+  /* -------------------------------------------------------
+     ANIME / TV DETAILS
+
+     Anime on TMDB is stored as TV content.
+  ------------------------------------------------------- */
+
+  const { data: anime, loading: animeLoading } = useFetch(
+    () => fetchTVDetails(id as string),
+    !!id && isAnime,
+  );
+
+  /* -------------------------------------------------------
+     MOVIE RECOMMENDATIONS
+
+     Only movies should use movie recommendations.
+  ------------------------------------------------------- */
 
   const { data: recommendations, loading: recsLoading } = useFetch(
     () => fetchMovieRecommendations(id as string),
     !!id && isMovie,
   );
 
-  /* 
+  /* -------------------------------------------------------
+     FINAL LOADING STATE
+  ------------------------------------------------------- */
+
+  const loading = movieLoading || animeLoading;
+
+  /* -------------------------------------------------------
+     SELECT CONTENT
+  ------------------------------------------------------- */
+
+  const content: any = isAnime ? anime : movie;
+
+  /* -------------------------------------------------------
      RECOMMENDATION PRESS
-   */
+  ------------------------------------------------------- */
 
   const handleRecommendationPress = (movieId: number) => {
     router.push({
       pathname: "/movies/[id]",
       params: {
         id: movieId.toString(),
+        type: "movie",
       },
     });
   };
 
-  /* 
+  /* -------------------------------------------------------
      BACKDROP
-   */
+  ------------------------------------------------------- */
 
-  const backdropUri = movie?.backdrop_path
-    ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
-    : movie?.poster_path
-      ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+  const backdropUri = content?.backdrop_path
+    ? `https://image.tmdb.org/t/p/w1280${content.backdrop_path}`
+    : content?.poster_path
+      ? `https://image.tmdb.org/t/p/w780${content.poster_path}`
       : "https://placehold.co/1280x720/1a0533/FFF?text=No+Image";
 
-  /* 
-     LOADING STATE
-   */
+  /* -------------------------------------------------------
+     LOADING
+  ------------------------------------------------------- */
 
   if (loading) {
     return (
@@ -218,11 +246,11 @@ const MovieDetails = () => {
     );
   }
 
-  /* 
-     MOVIE NOT FOUND
-   */
+  /* -------------------------------------------------------
+     NOT FOUND
+  ------------------------------------------------------- */
 
-  if (!movie) {
+  if (!content) {
     return (
       <View
         style={{
@@ -235,31 +263,46 @@ const MovieDetails = () => {
         <Text
           style={{
             color: "#fff",
+            fontSize: 16,
           }}
         >
-          Not found
+          {isAnime ? "Anime not found" : "Movie not found"}
         </Text>
       </View>
     );
   }
 
-  /* 
-     MOVIE INFORMATION
-   */
+  /* -------------------------------------------------------
+     DATA
 
-  const year = movie.release_date?.split("-")[0] ?? "";
+     Movie:
+       release_date
 
-  const rating = movie.vote_average ? movie.vote_average.toFixed(1) : null;
+     Anime / TV:
+       first_air_date
+  ------------------------------------------------------- */
 
-  const runtime = movie.runtime ? `${movie.runtime}m` : null;
+  const year =
+    (isAnime ? content.first_air_date : content.release_date)?.split("-")[0] ??
+    "";
 
-  const genre = movie.genres?.[0]?.name ?? null;
+  const rating = content.vote_average ? content.vote_average.toFixed(1) : null;
 
-  const seasons = movie.number_of_seasons ?? null;
+  const runtime = content.runtime ? `${content.runtime}m` : null;
 
-  /* 
+  const genre = content.genres?.[0]?.name ?? null;
+
+  const seasons = content.number_of_seasons ?? null;
+
+  /* -------------------------------------------------------
+     TITLE
+  ------------------------------------------------------- */
+
+  const title = content.title || content.name || "Unknown";
+
+  /* -------------------------------------------------------
      SCREEN
-   */
+  ------------------------------------------------------- */
 
   return (
     <View
@@ -282,9 +325,7 @@ const MovieDetails = () => {
         decelerationRate="normal"
         scrollEventThrottle={16}
       >
-        {/* 
-            HERO IMAGE
-         */}
+        {/* HERO */}
 
         <View
           style={{
@@ -316,12 +357,10 @@ const MovieDetails = () => {
             />
           </ImageBackground>
 
-          {/* 
-              BACK BUTTON
-           */}
+          {/* BACK */}
 
           <TouchableOpacity
-            onPress={router.back}
+            onPress={() => router.back()}
             style={{
               position: "absolute",
               top: 48,
@@ -345,9 +384,7 @@ const MovieDetails = () => {
             </Text>
           </TouchableOpacity>
 
-          {/* 
-              CLOSE BUTTON
-           */}
+          {/* CLOSE */}
 
           <TouchableOpacity
             onPress={() => router.back()}
@@ -374,9 +411,7 @@ const MovieDetails = () => {
             </Text>
           </TouchableOpacity>
 
-          {/* 
-              TITLE + META
-           */}
+          {/* TITLE + META */}
 
           <View
             style={{
@@ -388,8 +423,6 @@ const MovieDetails = () => {
               paddingHorizontal: 20,
             }}
           >
-            {/* Movie title */}
-
             <Text
               style={{
                 color: "#fff",
@@ -409,10 +442,8 @@ const MovieDetails = () => {
               }}
               numberOfLines={2}
             >
-              {movie.title || movie.name}
+              {title}
             </Text>
-
-            {/* Meta badges */}
 
             <View
               style={{
@@ -424,8 +455,8 @@ const MovieDetails = () => {
             >
               {year ? <MetaBadge icon="📅" label={year} /> : null}
 
-              {seasons ? (
-                <MetaBadge icon="□" label={`${seasons}`} />
+              {isAnime && seasons ? (
+                <MetaBadge icon="📺" label={`${seasons} Seasons`} />
               ) : runtime ? (
                 <MetaBadge icon="🕐" label={runtime} />
               ) : null}
@@ -437,9 +468,7 @@ const MovieDetails = () => {
           </View>
         </View>
 
-        {/* 
-            CONTENT
-         */}
+        {/* CONTENT */}
 
         <View
           style={{
@@ -447,11 +476,9 @@ const MovieDetails = () => {
             marginTop: 8,
           }}
         >
-          {/* 
-              SYNOPSIS
-           */}
+          {/* SYNOPSIS */}
 
-          {movie.overview ? (
+          {content.overview ? (
             <View
               style={{
                 marginBottom: 28,
@@ -476,17 +503,15 @@ const MovieDetails = () => {
                   lineHeight: 23,
                 }}
               >
-                {movie.overview}
+                {content.overview}
               </Text>
             </View>
           ) : null}
         </View>
 
-        {/* 
-            RECOMMENDATIONS
-         */}
+        {/* MOVIE RECOMMENDATIONS */}
 
-        {isMovie && (
+        {isMovie ? (
           <View
             style={{
               marginBottom: 16,
@@ -503,8 +528,6 @@ const MovieDetails = () => {
             >
               Recommendations
             </Text>
-
-            {/* Recommendation loading */}
 
             {recsLoading ? (
               <ActivityIndicator
@@ -543,12 +566,10 @@ const MovieDetails = () => {
               </Text>
             )}
           </View>
-        )}
+        ) : null}
       </ScrollView>
 
-      {/* 
-          WATCH MOVIE BUTTON
-       */}
+      {/* WATCH BUTTON */}
 
       <View
         style={{
@@ -556,13 +577,10 @@ const MovieDetails = () => {
           bottom: 0,
           left: 0,
           right: 0,
-
           paddingHorizontal: 16,
           paddingBottom: 28,
           paddingTop: 12,
-
           backgroundColor: "rgba(15,7,32,0.97)",
-
           borderTopWidth: 1,
           borderTopColor: "rgba(255,255,255,0.06)",
         }}
@@ -571,9 +589,7 @@ const MovieDetails = () => {
           style={{
             backgroundColor: "#7B6FCD",
             borderRadius: 14,
-
             paddingVertical: 16,
-
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
@@ -585,7 +601,6 @@ const MovieDetails = () => {
             },
             shadowOpacity: 0.5,
             shadowRadius: 12,
-
             elevation: 8,
           }}
           activeOpacity={0.82}
@@ -607,7 +622,7 @@ const MovieDetails = () => {
               letterSpacing: 0.4,
             }}
           >
-            Watch Movie
+            {isAnime ? "Watch Anime" : "Watch Movie"}
           </Text>
         </TouchableOpacity>
       </View>
