@@ -24,7 +24,6 @@ import useFetch from "@/services/useFetch";
 
 const { height } = Dimensions.get("window");
 
-
 type MetaBadgeProps = {
   icon: string;
   label: string;
@@ -65,10 +64,6 @@ function MetaBadge({ icon, label, accent = false }: MetaBadgeProps) {
     </View>
   );
 }
-
-/* -------------------------------------------------------
-   RECOMMENDATION CARD
-------------------------------------------------------- */
 
 type RecommendationCardProps = {
   item: any;
@@ -142,10 +137,6 @@ const RecommendationCard = memo(function RecommendationCard({
   );
 });
 
-/* -------------------------------------------------------
-   DETAIL SCREEN
-------------------------------------------------------- */
-
 const MovieDetails = () => {
   const { id, type } = useLocalSearchParams<{
     id?: string;
@@ -160,52 +151,24 @@ const MovieDetails = () => {
   const isAnime = type === "anime";
   const isMovie = !type || type === "movie";
 
-  /* -------------------------------------------------------
-     MOVIE DETAILS
-  ------------------------------------------------------- */
-
   const { data: movie, loading: movieLoading } = useFetch(
     () => fetchMovieDetails(id as string),
     !!id && isMovie,
   );
-
-  /* -------------------------------------------------------
-     ANIME / TV DETAILS
-
-     Anime on TMDB is stored as TV content.
-  ------------------------------------------------------- */
 
   const { data: anime, loading: animeLoading } = useFetch(
     () => fetchTVDetails(id as string),
     !!id && isAnime,
   );
 
-  /* -------------------------------------------------------
-     MOVIE RECOMMENDATIONS
-
-     Only movies should use movie recommendations.
-  ------------------------------------------------------- */
-
   const { data: recommendations, loading: recsLoading } = useFetch(
     () => fetchMovieRecommendations(id as string),
     !!id && isMovie,
   );
 
-  /* -------------------------------------------------------
-     FINAL LOADING STATE
-  ------------------------------------------------------- */
-
   const loading = movieLoading || animeLoading;
 
-  /* -------------------------------------------------------
-     SELECT CONTENT
-  ------------------------------------------------------- */
-
   const content: any = isAnime ? anime : movie;
-
-  /* -------------------------------------------------------
-     RECOMMENDATION PRESS
-  ------------------------------------------------------- */
 
   const handleRecommendationPress = (movieId: number) => {
     router.push({
@@ -217,19 +180,11 @@ const MovieDetails = () => {
     });
   };
 
-  /* -------------------------------------------------------
-     BACKDROP
-  ------------------------------------------------------- */
-
   const backdropUri = content?.backdrop_path
     ? `https://image.tmdb.org/t/p/w1280${content.backdrop_path}`
     : content?.poster_path
       ? `https://image.tmdb.org/t/p/w780${content.poster_path}`
       : "https://placehold.co/1280x720/1a0533/FFF?text=No+Image";
-
-  /* -------------------------------------------------------
-     LOADING
-  ------------------------------------------------------- */
 
   if (loading) {
     return (
@@ -245,10 +200,6 @@ const MovieDetails = () => {
       </View>
     );
   }
-
-  /* -------------------------------------------------------
-     NOT FOUND
-  ------------------------------------------------------- */
 
   if (!content) {
     return (
@@ -272,16 +223,6 @@ const MovieDetails = () => {
     );
   }
 
-  /* -------------------------------------------------------
-     DATA
-
-     Movie:
-       release_date
-
-     Anime / TV:
-       first_air_date
-  ------------------------------------------------------- */
-
   const year =
     (isAnime ? content.first_air_date : content.release_date)?.split("-")[0] ??
     "";
@@ -294,15 +235,7 @@ const MovieDetails = () => {
 
   const seasons = content.number_of_seasons ?? null;
 
-  /* -------------------------------------------------------
-     TITLE
-  ------------------------------------------------------- */
-
   const title = content.title || content.name || "Unknown";
-
-  /* -------------------------------------------------------
-     SCREEN
-  ------------------------------------------------------- */
 
   return (
     <View
@@ -325,8 +258,6 @@ const MovieDetails = () => {
         decelerationRate="normal"
         scrollEventThrottle={16}
       >
-        {/* HERO */}
-
         <View
           style={{
             height: height * 0.55,
@@ -357,8 +288,6 @@ const MovieDetails = () => {
             />
           </ImageBackground>
 
-          {/* BACK */}
-
           <TouchableOpacity
             onPress={() => router.back()}
             style={{
@@ -384,8 +313,6 @@ const MovieDetails = () => {
             </Text>
           </TouchableOpacity>
 
-          {/* CLOSE */}
-
           <TouchableOpacity
             onPress={() => router.back()}
             style={{
@@ -410,8 +337,6 @@ const MovieDetails = () => {
               ✕
             </Text>
           </TouchableOpacity>
-
-          {/* TITLE + META */}
 
           <View
             style={{
@@ -468,16 +393,12 @@ const MovieDetails = () => {
           </View>
         </View>
 
-        {/* CONTENT */}
-
         <View
           style={{
             paddingHorizontal: 16,
             marginTop: 8,
           }}
         >
-          {/* SYNOPSIS */}
-
           {content.overview ? (
             <View
               style={{
@@ -508,8 +429,6 @@ const MovieDetails = () => {
             </View>
           ) : null}
         </View>
-
-        {/* MOVIE RECOMMENDATIONS */}
 
         {isMovie ? (
           <View
@@ -568,8 +487,6 @@ const MovieDetails = () => {
           </View>
         ) : null}
       </ScrollView>
-
-      {/* WATCH BUTTON */}
 
       <View
         style={{
