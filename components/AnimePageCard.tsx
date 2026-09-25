@@ -1,8 +1,8 @@
 // uses anime_id from AnimeCardItem type
-import { Link } from "expo-router";
-import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Image } from "expo-image";
+import { Link } from "expo-router";
 import { memo } from "react";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 type AnimePageCardProps = {
   anime: {
