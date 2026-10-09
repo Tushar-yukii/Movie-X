@@ -2,15 +2,17 @@ const BASE_URL = "https://api.themoviedb.org/3";
 
 const API_TOKEN = process.env.EXPO_PUBLIC_MOVIE_API_KEY;
 
-if (!API_TOKEN) {
-  throw new Error("TMDB API key is missing");
-}
-
 /*
   TMDB FETCH HELPER
 */
 
 export const tmdbFetch = async <T>(endpoint: string): Promise<T> => {
+  if (!API_TOKEN) {
+    throw new Error(
+      "TMDB API key is missing. Please set EXPO_PUBLIC_MOVIE_API_KEY in your .env file.",
+    );
+  }
+
   const url = `${BASE_URL}${endpoint}`;
 
   try {
@@ -287,6 +289,20 @@ export const fetchMovieRecommendations = async (
 
 export const fetchTVDetails = async (tvId: string): Promise<MovieDetails> => {
   return tmdbFetch<MovieDetails>(`/tv/${tvId}`);
+};
+
+/*
+  TV RECOMMENDATIONS
+*/
+
+export const fetchTVRecommendations = async (
+  tvId: string,
+): Promise<Movie[]> => {
+  const data = await tmdbFetch<{ results: any[] }>(
+    `/tv/${tvId}/recommendations`,
+  );
+
+  return data.results.slice(0, 10);
 };
 
 /*

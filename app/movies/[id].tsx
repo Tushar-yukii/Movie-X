@@ -18,6 +18,7 @@ import {
   fetchMovieDetails,
   fetchMovieRecommendations,
   fetchTVDetails,
+  fetchTVRecommendations,
 } from "@/services/api";
 
 import useFetch from "@/services/useFetch";
@@ -144,38 +145,42 @@ const MovieDetails = () => {
   }>();
 
   /*
-    type = anime
-    type = movie
+    type = anime | series | tv | movie
   */
 
   const isAnime = type === "anime";
-  const isMovie = !type || type === "movie";
+  const isSeries = type === "series" || type === "tv";
+  const isTV = isAnime || isSeries;
+  const isMovie = !isTV;
 
   const { data: movie, loading: movieLoading } = useFetch(
     () => fetchMovieDetails(id as string),
     !!id && isMovie,
   );
 
-  const { data: anime, loading: animeLoading } = useFetch(
+  const { data: tvShow, loading: tvLoading } = useFetch(
     () => fetchTVDetails(id as string),
-    !!id && isAnime,
+    !!id && isTV,
   );
 
   const { data: recommendations, loading: recsLoading } = useFetch(
-    () => fetchMovieRecommendations(id as string),
-    !!id && isMovie,
+    () =>
+      isTV
+        ? fetchTVRecommendations(id as string)
+        : fetchMovieRecommendations(id as string),
+    !!id,
   );
 
-  const loading = movieLoading || animeLoading;
+  const loading = isTV ? tvLoading : movieLoading;
 
-  const content: any = isAnime ? anime : movie;
+  const content: any = isTV ? tvShow : movie;
 
-  const handleRecommendationPress = (movieId: number) => {
+  const handleRecommendationPress = (itemId: number) => {
     router.push({
       pathname: "/movies/[id]",
       params: {
-        id: movieId.toString(),
-        type: "movie",
+        id: itemId.toString(),
+        type: isTV ? (isAnime ? "anime" : "tv") : "movie",
       },
     });
   };
@@ -217,7 +222,11 @@ const MovieDetails = () => {
             fontSize: 16,
           }}
         >
-          {isAnime ? "Anime not found" : "Movie not found"}
+          {isAnime
+            ? "Anime not found"
+            : isSeries
+              ? "Series not found"
+              : "Movie not found"}
         </Text>
       </View>
     );
@@ -430,7 +439,7 @@ const MovieDetails = () => {
           ) : null}
         </View>
 
-        {isMovie ? (
+        {true ? (
           <View
             style={{
               marginBottom: 16,
@@ -539,7 +548,11 @@ const MovieDetails = () => {
               letterSpacing: 0.4,
             }}
           >
-            {isAnime ? "Watch Anime" : "Watch Movie"}
+            {isAnime
+              ? "Watch Anime"
+              : isSeries
+                ? "Watch Series"
+                : "Watch Movie"}
           </Text>
         </TouchableOpacity>
       </View>

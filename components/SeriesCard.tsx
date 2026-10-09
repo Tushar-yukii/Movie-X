@@ -50,7 +50,7 @@ export default memo(SeriesCard);
 
 const styles = StyleSheet.create({
   card: {
-    width: 104,
+    width: 120,
     marginRight: 12,
   },
   poster: {

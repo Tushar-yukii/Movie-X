@@ -1,3 +1,4 @@
+import { Movie } from "@/services/api";
 import { Link } from "expo-router";
 import { memo } from "react";
 import { Image, Text, TouchableOpacity } from "react-native";

@@ -47,7 +47,7 @@ export default memo(AnimePageCard);
 
 const styles = StyleSheet.create({
   card: {
-    width: 114,
+    width: 120,
     marginRight: 12,
   },
   poster: {

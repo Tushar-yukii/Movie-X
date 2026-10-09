@@ -1,16 +1,29 @@
 import { Client, Databases, ID, Query } from "react-native-appwrite";
-// track the searches made by a user
+import { Movie } from "./api";
 
-const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID!;
-const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID!;
+export type TrendingMovie = {
+  $id: string;
+  searchTerm: string;
+  count: number;
+  movie_id: number;
+  title: string;
+  poster_url: string;
+};
+
+const DATABASE_ID = process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID || "";
+const COLLECTION_ID = process.env.EXPO_PUBLIC_APPWRITE_COLLECTION_ID || "";
+const PROJECT_ID = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID || "";
 
 const client = new Client()
   .setEndpoint("https://cloud.appwrite.io/v1")
-  .setProject(process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!);
+  .setProject(PROJECT_ID);
 
 const database = new Databases(client);
 
 export const updateSearchCount = async (query: string, movie: Movie) => {
+  if (!DATABASE_ID || !COLLECTION_ID || !PROJECT_ID) {
+    return;
+  }
   try {
     const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
       Query.equal("searchTerm", query),
@@ -47,6 +60,9 @@ export const updateSearchCount = async (query: string, movie: Movie) => {
 export const getTrendingMovies = async (): Promise<
   TrendingMovie[] | undefined
 > => {
+  if (!DATABASE_ID || !COLLECTION_ID || !PROJECT_ID) {
+    return undefined;
+  }
   try {
     const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
       Query.limit(5),
