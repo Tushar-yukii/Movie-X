@@ -1,30 +1,40 @@
 import { icons } from "@/constants/icons";
 import { images } from "@/constants/images";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { Image, ImageBackground, Text, View } from "react-native";
+
 const TabIcon = ({ focused, icon, title }: any) => {
+  const renderIcon = (size: number, color: string) => {
+    if (typeof icon === "function") {
+      return icon({ size, color });
+    }
+    return (
+      <Image
+        source={icon}
+        style={{ width: size, height: size }}
+        tintColor={color}
+      />
+    );
+  };
+
   if (focused) {
     return (
       <ImageBackground
         source={images.highlight}
         style={{
           flexDirection: "row",
-          minWidth: 90,
-
+          minWidth: 84,
           minHeight: 40,
           marginTop: 16,
           justifyContent: "center",
           alignItems: "center",
           borderRadius: 50,
           overflow: "hidden",
-          paddingHorizontal: 12,
+          paddingHorizontal: 10,
         }}
       >
-        <Image
-          source={icon}
-          style={{ width: 18, height: 18 }}
-          tintColor="#151312"
-        />
+        {renderIcon(18, "#151312")}
         <Text
           style={{
             color: "#151312",
@@ -49,11 +59,7 @@ const TabIcon = ({ focused, icon, title }: any) => {
         marginTop: 16,
       }}
     >
-      <Image
-        source={icon}
-        style={{ width: 20, height: 20 }}
-        tintColor="#A8B5DB"
-      />
+      {renderIcon(20, "#A8B5DB")}
     </View>
   );
 };
@@ -72,15 +78,15 @@ const _layout = () => {
         tabBarStyle: {
           backgroundColor: "#0f0D23",
           borderRadius: 50,
-          marginHorizontal: 20,
+          marginHorizontal: 16,
           marginBottom: 36,
           height: 54,
           position: "absolute",
           borderWidth: 1,
           borderColor: "#1a1a3a",
           elevation: 10,
-          gap: 4,
-          paddingHorizontal: 8,
+          gap: 2,
+          paddingHorizontal: 6,
         },
       }}
     >
@@ -121,6 +127,26 @@ const _layout = () => {
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon focused={focused} icon={icons.tabAnime} title="Anime" />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="stats"
+        options={{
+          title: "Stats",
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              icon={({ size, color }: { size: number; color: string }) => (
+                <MaterialCommunityIcons
+                  name="chart-box"
+                  size={size}
+                  color={color}
+                />
+              )}
+              title="Stats"
+            />
           ),
         }}
       />
