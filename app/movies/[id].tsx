@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -22,6 +22,7 @@ import {
 } from "@/services/api";
 
 import useFetch from "@/services/useFetch";
+import { logUserActivity } from "@/services/activityTracker";
 
 const { height } = Dimensions.get("window");
 
@@ -245,6 +246,37 @@ const MovieDetails = () => {
   const seasons = content.number_of_seasons ?? null;
 
   const title = content.title || content.name || "Unknown";
+
+  const [sessionLogged, setSessionLogged] = useState(false);
+
+  const handleWatchPress = async () => {
+    if (!content) return;
+    const cat = isAnime ? "anime" : isSeries ? "series" : "movie";
+    const duration = content.runtime || 24;
+    const genres = content.genres?.map((g: any) => g.name) || [];
+    const studio = content.production_companies?.[0]?.name || null;
+
+    await logUserActivity({
+      contentId: (id || "").toString(),
+      title,
+      category: cat,
+      specificType: cat,
+      posterUrl: content.poster_path
+        ? `https://image.tmdb.org/t/p/w500${content.poster_path}`
+        : null,
+      durationMinutes: duration,
+      episodesWatched: 1,
+      chaptersRead: 0,
+      completed: false,
+      genres,
+      studio,
+    });
+
+    setSessionLogged(true);
+    setTimeout(() => {
+      setSessionLogged(false);
+    }, 3000);
+  };
 
   return (
     <View
@@ -512,15 +544,16 @@ const MovieDetails = () => {
         }}
       >
         <TouchableOpacity
+          onPress={handleWatchPress}
           style={{
-            backgroundColor: "#7B6FCD",
+            backgroundColor: sessionLogged ? "#10B981" : "#7B6FCD",
             borderRadius: 14,
             paddingVertical: 16,
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
 
-            shadowColor: "#7B6FCD",
+            shadowColor: sessionLogged ? "#10B981" : "#7B6FCD",
             shadowOffset: {
               width: 0,
               height: 4,
@@ -535,9 +568,10 @@ const MovieDetails = () => {
             style={{
               fontSize: 18,
               marginRight: 6,
+              color: "#fff",
             }}
           >
-            ▶
+            {sessionLogged ? "✓" : "▶"}
           </Text>
 
           <Text
@@ -548,11 +582,13 @@ const MovieDetails = () => {
               letterSpacing: 0.4,
             }}
           >
-            {isAnime
+            {sessionLogged
+              ? "Logged to Stats (+20 XP)"
+              : isAnime
               ? "Watch Anime"
               : isSeries
-                ? "Watch Series"
-                : "Watch Movie"}
+              ? "Watch Series"
+              : "Watch Movie"}
           </Text>
         </TouchableOpacity>
       </View>
