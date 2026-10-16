@@ -3,6 +3,8 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import AddToCategoryModal from "@/components/AddToCategoryModal";
+import { ContentType, useItemCategories } from "@/services/categoryStorage";
 import {
   Dimensions,
   FlatList,
@@ -163,18 +165,40 @@ const HeroSlider = ({ slides, label = "Series", type = "tv" }: Props) => {
     [router, type],
   );
 
+  const contentType: ContentType =
+    label?.toLowerCase().includes("anime")
+      ? "anime"
+      : label?.toLowerCase().includes("series") || type === "tv"
+      ? "series"
+      : "movie";
+
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
   // Return nothing when there are no slides
   if (slideCount === 0) {
     return null;
   }
 
   // Protect against an invalid active index
-  const safeActiveIndex = Math.min(activeIndex, slideCount - 1);
+  const safeActiveIndex = Math.min(activeIndex, Math.max(0, slideCount - 1));
 
   const currentSlide = slides[safeActiveIndex];
 
+  const { isSaved } = useItemCategories(
+    contentType,
+    currentSlide ? currentSlide.id : null
+  );
+
   return (
     <View style={styles.container}>
+      {/* FLOATING SUCCESS TOAST */}
+      {toastMessage ? (
+        <View style={styles.toastBanner}>
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </View>
+      ) : null}
+
       <FlatList
         ref={flatListRef}
         data={slides}
@@ -215,10 +239,18 @@ const HeroSlider = ({ slides, label = "Series", type = "tv" }: Props) => {
         </Text>
 
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.sideAction} activeOpacity={0.7}>
-            <Text style={styles.sideIcon}>＋</Text>
+          <TouchableOpacity
+            style={[styles.sideAction, isSaved && styles.sideActionSaved]}
+            activeOpacity={0.7}
+            onPress={() => setCategoryModalVisible(true)}
+          >
+            <Text style={[styles.sideIcon, isSaved && styles.sideIconSaved]}>
+              {isSaved ? "✓" : "＋"}
+            </Text>
 
-            <Text style={styles.sideLabel}>Save</Text>
+            <Text style={[styles.sideLabel, isSaved && styles.sideLabelSaved]}>
+              {isSaved ? "Saved" : "Save"}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -240,6 +272,30 @@ const HeroSlider = ({ slides, label = "Series", type = "tv" }: Props) => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* ADD TO CATEGORY MODAL */}
+      {currentSlide ? (
+        <AddToCategoryModal
+          visible={categoryModalVisible}
+          onClose={() => setCategoryModalVisible(false)}
+          content={{
+            id: currentSlide.id.toString(),
+            type: contentType,
+            title: currentSlide.title,
+            posterUrl: currentSlide.poster_url || currentSlide.backdrop_url,
+            overview: currentSlide.overview,
+            year: currentSlide.year,
+          }}
+          onSuccess={(count) => {
+            setToastMessage(
+              count > 0
+                ? `Saved to ${count} ${count === 1 ? "category" : "categories"}!`
+                : "Removed from categories"
+            );
+            setTimeout(() => setToastMessage(null), 3000);
+          }}
+        />
+      ) : null}
     </View>
   );
 };
@@ -341,5 +397,37 @@ const styles = StyleSheet.create({
     color: "#A0A0B0",
     fontSize: 11,
     marginTop: 2,
+  },
+  sideActionSaved: {
+    opacity: 1,
+  },
+  sideIconSaved: {
+    color: "#AB8BFF",
+  },
+  sideLabelSaved: {
+    color: "#AB8BFF",
+    fontWeight: "700",
+  },
+  toastBanner: {
+    position: "absolute",
+    top: 48,
+    alignSelf: "center",
+    backgroundColor: "#292444",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#AB8BFF",
+    zIndex: 999,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  toastText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "700",
   },
 });

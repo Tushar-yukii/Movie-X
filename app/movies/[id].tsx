@@ -4,6 +4,7 @@ import {
   Dimensions,
   Image,
   ImageBackground,
+  Platform,
   ScrollView,
   StatusBar,
   Text,
@@ -11,6 +12,7 @@ import {
   View,
 } from "react-native";
 
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 
@@ -23,6 +25,8 @@ import {
 
 import useFetch from "@/services/useFetch";
 import { logUserActivity } from "@/services/activityTracker";
+import AddToCategoryModal from "@/components/AddToCategoryModal";
+import { ContentType, useItemCategories } from "@/services/categoryStorage";
 
 const { height } = Dimensions.get("window");
 
@@ -246,6 +250,11 @@ const MovieDetails = () => {
   const seasons = content.number_of_seasons ?? null;
 
   const title = content.title || content.name || "Unknown";
+
+  const contentType: ContentType = isAnime ? "anime" : isSeries ? "series" : "movie";
+  const { isSaved, savedCategoryIds } = useItemCategories(contentType, (id || "").toString());
+  const [categoryModalVisible, setCategoryModalVisible] = useState(false);
+  const [saveToastMessage, setSaveToastMessage] = useState<string | null>(null);
 
   const [sessionLogged, setSessionLogged] = useState(false);
 
@@ -529,6 +538,38 @@ const MovieDetails = () => {
         ) : null}
       </ScrollView>
 
+      {/* FLOATING SUCCESS TOAST */}
+      {saveToastMessage ? (
+        <View
+          style={{
+            position: "absolute",
+            bottom: Platform.OS === "android" ? 82 : 94,
+            alignSelf: "center",
+            backgroundColor: "#292444",
+            paddingVertical: 10,
+            paddingHorizontal: 18,
+            borderRadius: 20,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            borderWidth: 1,
+            borderColor: "#AB8BFF",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.35,
+            shadowRadius: 8,
+            elevation: 10,
+            zIndex: 999,
+          }}
+        >
+          <Ionicons name="checkmark-circle" size={18} color="#AB8BFF" />
+          <Text style={{ color: "#FFFFFF", fontSize: 13, fontWeight: "700" }}>
+            {saveToastMessage}
+          </Text>
+        </View>
+      ) : null}
+
+      {/* BOTTOM ACTION BAR */}
       <View
         style={{
           position: "absolute",
@@ -536,23 +577,64 @@ const MovieDetails = () => {
           left: 0,
           right: 0,
           paddingHorizontal: 16,
-          paddingBottom: 28,
+          paddingBottom: Platform.OS === "android" ? 20 : 32,
           paddingTop: 12,
           backgroundColor: "rgba(15,7,32,0.97)",
           borderTopWidth: 1,
           borderTopColor: "rgba(255,255,255,0.06)",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 12,
         }}
       >
+        {/* SAVE TO CATEGORY BUTTON */}
         <TouchableOpacity
-          onPress={handleWatchPress}
+          onPress={() => setCategoryModalVisible(true)}
           style={{
-            backgroundColor: sessionLogged ? "#10B981" : "#7B6FCD",
+            height: 52,
+            paddingHorizontal: 16,
             borderRadius: 14,
-            paddingVertical: 16,
+            backgroundColor: isSaved ? "rgba(171, 139, 255, 0.18)" : "#221C38",
+            borderWidth: 1.5,
+            borderColor: isSaved ? "#AB8BFF" : "rgba(255, 255, 255, 0.08)",
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
+            gap: 6,
+          }}
+          activeOpacity={0.8}
+        >
+          {isSaved ? (
+            <Ionicons name="bookmark" size={17} color="#AB8BFF" />
+          ) : (
+            <Feather name="plus" size={17} color="#A8B5DB" />
+          )}
+          <Text
+            style={{
+              color: isSaved ? "#AB8BFF" : "#FFFFFF",
+              fontWeight: "700",
+              fontSize: 14,
+            }}
+          >
+            {isSaved
+              ? savedCategoryIds.length > 1
+                ? `Saved (${savedCategoryIds.length})`
+                : "Saved"
+              : "Save"}
+          </Text>
+        </TouchableOpacity>
 
+        {/* WATCH NOW BUTTON */}
+        <TouchableOpacity
+          onPress={handleWatchPress}
+          style={{
+            flex: 1,
+            height: 52,
+            backgroundColor: sessionLogged ? "#10B981" : "#7B6FCD",
+            borderRadius: 14,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
             shadowColor: sessionLogged ? "#10B981" : "#7B6FCD",
             shadowOffset: {
               width: 0,
@@ -578,7 +660,7 @@ const MovieDetails = () => {
             style={{
               color: "#fff",
               fontWeight: "800",
-              fontSize: 17,
+              fontSize: 16,
               letterSpacing: 0.4,
             }}
           >
@@ -592,6 +674,31 @@ const MovieDetails = () => {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {/* ADD TO CATEGORY MODAL */}
+      <AddToCategoryModal
+        visible={categoryModalVisible}
+        onClose={() => setCategoryModalVisible(false)}
+        content={{
+          id: (id || "").toString(),
+          type: contentType,
+          title,
+          posterUrl: content.poster_path
+            ? `https://image.tmdb.org/t/p/w500${content.poster_path}`
+            : null,
+          overview: content.overview,
+          rating,
+          year,
+        }}
+        onSuccess={(count) => {
+          setSaveToastMessage(
+            count > 0
+              ? `Saved to ${count} ${count === 1 ? "category" : "categories"}!`
+              : "Removed from categories"
+          );
+          setTimeout(() => setSaveToastMessage(null), 3000);
+        }}
+      />
     </View>
   );
 };

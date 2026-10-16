@@ -86,7 +86,7 @@ export const RANK_TIERS = [
 
 // In-Memory Activity Store
 let activityStore: ActivityRecord[] = [];
-let listeners: Array<() => void> = [];
+let listeners: (() => void)[] = [];
 
 const notifyListeners = () => {
   listeners.forEach((listener) => {

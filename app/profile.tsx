@@ -1,7 +1,9 @@
+import { Ionicons } from "@expo/vector-icons";
 import { icons } from "@/constants/icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { getSavedItems, useCategories } from "@/services/categoryStorage";
 
 import {
   KeyboardAvoidingView,
@@ -18,8 +20,28 @@ import {
 
 export default function ProfileScreen() {
   // USER NAME
-
   const [name, setName] = useState("yukki");
+  const { categories } = useCategories();
+  const savedItems = getSavedItems();
+  const totalSavedCount = savedItems.length;
+
+  const animeCount = useMemo(() => {
+    return new Set(
+      savedItems.filter((i) => i.contentType === "anime").map((i) => i.contentId)
+    ).size;
+  }, [savedItems]);
+
+  const moviesCount = useMemo(() => {
+    return new Set(
+      savedItems.filter((i) => i.contentType === "movie").map((i) => i.contentId)
+    ).size;
+  }, [savedItems]);
+
+  const seriesCount = useMemo(() => {
+    return new Set(
+      savedItems.filter((i) => i.contentType === "series").map((i) => i.contentId)
+    ).size;
+  }, [savedItems]);
 
   // Temporary name while editing
   const [editName, setEditName] = useState(name);
@@ -107,7 +129,24 @@ export default function ProfileScreen() {
           </View>
 
           {/* Arrow */}
+          <Text style={styles.profileArrow}>›</Text>
+        </TouchableOpacity>
 
+        {/* MY LIBRARY & CATEGORIES */}
+        <TouchableOpacity
+          style={styles.libraryCard}
+          onPress={() => router.push("/library")}
+          activeOpacity={0.8}
+        >
+          <View style={styles.libraryIconCircle}>
+            <Ionicons name="bookmark" size={24} color="#AB8BFF" />
+          </View>
+          <View style={styles.libraryTextCol}>
+            <Text style={styles.libraryTitle}>My Library & Categories</Text>
+            <Text style={styles.librarySubtitle}>
+              {categories.length} {categories.length === 1 ? "category" : "categories"} • {totalSavedCount} saved titles
+            </Text>
+          </View>
           <Text style={styles.profileArrow}>›</Text>
         </TouchableOpacity>
 
@@ -119,7 +158,6 @@ export default function ProfileScreen() {
 
         <View style={styles.statisticsRow}>
           {/* ANIME */}
-
           <View style={styles.statCard}>
             <View
               style={[
@@ -132,13 +170,12 @@ export default function ProfileScreen() {
               <Text style={styles.statIcon}>✨</Text>
             </View>
 
-            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statNumber}>{animeCount}</Text>
 
             <Text style={styles.statLabel}>Anime</Text>
           </View>
 
           {/* MOVIES */}
-
           <View style={styles.statCard}>
             <View
               style={[
@@ -151,13 +188,12 @@ export default function ProfileScreen() {
               <Text style={styles.statIcon}>▦</Text>
             </View>
 
-            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statNumber}>{moviesCount}</Text>
 
             <Text style={styles.statLabel}>Movies</Text>
           </View>
 
           {/* SERIES */}
-
           <View style={styles.statCard}>
             <View
               style={[
@@ -179,7 +215,7 @@ export default function ProfileScreen() {
               </Text>
             </View>
 
-            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statNumber}>{seriesCount}</Text>
 
             <Text style={styles.statLabel}>Series</Text>
           </View>
@@ -328,32 +364,56 @@ const styles = StyleSheet.create({
   // PROFILE CARD
 
   profileCard: {
-    height: 274,
-
-    borderRadius: 32,
-
+    height: 100,
+    borderRadius: 24,
     backgroundColor: "#222228",
-
-    paddingHorizontal: 30,
-
+    paddingHorizontal: 24,
     flexDirection: "row",
     alignItems: "center",
-
-    marginBottom: 76,
+    marginBottom: 16,
+  },
+  libraryCard: {
+    height: 84,
+    borderRadius: 24,
+    backgroundColor: "#1C1B2E",
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 44,
+    borderWidth: 1,
+    borderColor: "rgba(171, 139, 255, 0.25)",
+  },
+  libraryIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(171, 139, 255, 0.15)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+  },
+  libraryTextCol: {
+    flex: 1,
+  },
+  libraryTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 4,
+  },
+  librarySubtitle: {
+    color: "#8A8A9E",
+    fontSize: 12,
   },
 
   profileIconCircle: {
     width: 50,
-    height: 15,
-
-    borderRadius: 93,
-
+    height: 50,
+    borderRadius: 25,
     backgroundColor: "#0D0D12",
-
     justifyContent: "center",
     alignItems: "center",
-
-    marginRight: 40,
+    marginRight: 20,
   },
 
   profileIcon: {
