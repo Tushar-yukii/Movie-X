@@ -20,56 +20,28 @@ import {
 
 import {
   Category,
-  createCategory,
   deleteCategory,
-  getSavedItems,
-  getSavedItemsByCategory,
   removeItemFromCategory,
   renameCategory,
   SavedItem,
   useCategories,
+  useSavedItems,
 } from "@/services/categoryStorage";
+import CreateCategorySheet from "@/components/CreateCategorySheet";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 32 - 12) / 2;
 
-const EMOJI_OPTIONS = [
-  "📁",
-  "🎬",
-  "🍿",
-  "📺",
-  "⭐",
-  "💖",
-  "🔥",
-  "🎯",
-  "⚡",
-  "📖",
-  "🌸",
-  "🏆",
-];
-
-const COLOR_OPTIONS = [
-  "#AB8BFF",
-  "#7FE0D4",
-  "#FFA26B",
-  "#E8A9D1",
-  "#7B6FCD",
-  "#FBBF24",
-];
-
 export default function LibraryScreen() {
   const router = useRouter();
   const { categories, loading } = useCategories();
+  const savedItems = useSavedItems();
 
   // Active selected category ("ALL" or specific category id)
   const [activeCategoryId, setActiveCategoryId] = useState<string>("ALL");
 
   // Create Category Modal state
   const [createModalVisible, setCreateModalVisible] = useState(false);
-  const [newCatName, setNewCatName] = useState("");
-  const [newCatEmoji, setNewCatEmoji] = useState("📁");
-  const [newCatColor, setNewCatColor] = useState("#AB8BFF");
-  const [createError, setCreateError] = useState("");
 
   // Rename Category Modal state
   const [renameModalVisible, setRenameModalVisible] = useState(false);
@@ -81,9 +53,8 @@ export default function LibraryScreen() {
   const displayedItems = useMemo<SavedItem[]>(() => {
     if (activeCategoryId === "ALL") {
       // Deduplicate items across categories for the "ALL" view
-      const all = getSavedItems();
       const uniqueMap = new Map<string, SavedItem>();
-      all.forEach((item) => {
+      savedItems.forEach((item) => {
         const key = `${item.contentType}_${item.contentId}`;
         if (!uniqueMap.has(key)) {
           uniqueMap.set(key, item);
@@ -91,8 +62,8 @@ export default function LibraryScreen() {
       });
       return Array.from(uniqueMap.values());
     }
-    return getSavedItemsByCategory(activeCategoryId);
-  }, [activeCategoryId, categories]);
+    return savedItems.filter((item) => item.categoryId === activeCategoryId);
+  }, [activeCategoryId, savedItems]);
 
   const activeCategory = useMemo(() => {
     return categories.find((c) => c.id === activeCategoryId) || null;
@@ -141,20 +112,7 @@ export default function LibraryScreen() {
     );
   };
 
-  // Handle Create Category
-  const handleCreateSubmit = async () => {
-    setCreateError("");
-    const res = await createCategory(newCatName, newCatEmoji, newCatColor);
-    if (!res.success) {
-      setCreateError(res.error || "Failed to create category");
-      return;
-    }
-    setCreateModalVisible(false);
-    setNewCatName("");
-    if (res.category) {
-      setActiveCategoryId(res.category.id);
-    }
-  };
+
 
   // Handle Rename Category
   const handleRenameSubmit = async () => {
@@ -223,11 +181,7 @@ export default function LibraryScreen() {
 
         <TouchableOpacity
           style={styles.newCatHeaderButton}
-          onPress={() => {
-            setCreateError("");
-            setNewCatName("");
-            setCreateModalVisible(true);
-          }}
+          onPress={() => setCreateModalVisible(true)}
           activeOpacity={0.8}
         >
           <Feather name="plus" size={16} color="#AB8BFF" />
@@ -269,7 +223,7 @@ export default function LibraryScreen() {
             {/* CUSTOM CATEGORY PILLS */}
             {categories.map((cat) => {
               const isSelected = activeCategoryId === cat.id;
-              const count = getSavedItemsByCategory(cat.id).length;
+              const count = savedItems.filter((item) => item.categoryId === cat.id).length;
 
               return (
                 <TouchableOpacity
@@ -439,11 +393,7 @@ export default function LibraryScreen() {
             {categories.length === 0 ? (
               <TouchableOpacity
                 style={styles.createFirstBtn}
-                onPress={() => {
-                  setCreateError("");
-                  setNewCatName("");
-                  setCreateModalVisible(true);
-                }}
+                onPress={() => setCreateModalVisible(true)}
                 activeOpacity={0.85}
               >
                 <Feather name="plus" size={16} color="#FFFFFF" />
@@ -456,114 +406,15 @@ export default function LibraryScreen() {
         )}
       </ScrollView>
 
-      {/* CREATE CATEGORY MODAL */}
-      <Modal
+      {/* CREATE CATEGORY BOTTOM SHEET */}
+      <CreateCategorySheet
         visible={createModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setCreateModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <TouchableOpacity
-            style={styles.modalBackdrop}
-            activeOpacity={1}
-            onPress={() => setCreateModalVisible(false)}
-          />
-
-          <View style={styles.modalBox}>
-            <View style={styles.modalHeaderRow}>
-              <Text style={styles.modalHeading}>Create Category</Text>
-              <TouchableOpacity
-                onPress={() => setCreateModalVisible(false)}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Ionicons name="close" size={20} color="#8A8A9E" />
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.modalLabel}>Category Name</Text>
-            <TextInput
-              style={[
-                styles.modalInput,
-                createError ? styles.modalInputError : null,
-              ]}
-              placeholder="e.g. Watching, Plan to Watch, Favorites"
-              placeholderTextColor="#6B6A7E"
-              value={newCatName}
-              onChangeText={(text) => {
-                setNewCatName(text);
-                if (createError) setCreateError("");
-              }}
-              autoFocus
-              maxLength={35}
-            />
-            {createError ? (
-              <Text style={styles.modalErrorText}>{createError}</Text>
-            ) : null}
-
-            <Text style={styles.modalLabel}>Choose Icon</Text>
-            <View style={styles.emojiGrid}>
-              {EMOJI_OPTIONS.map((emoji) => {
-                const isSelected = newCatEmoji === emoji;
-                return (
-                  <TouchableOpacity
-                    key={emoji}
-                    style={[
-                      styles.emojiPill,
-                      isSelected && styles.emojiPillSelected,
-                    ]}
-                    onPress={() => setNewCatEmoji(emoji)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.emojiText}>{emoji}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            <Text style={styles.modalLabel}>Choose Theme Color</Text>
-            <View style={styles.colorRow}>
-              {COLOR_OPTIONS.map((color) => {
-                const isSelected = newCatColor === color;
-                return (
-                  <TouchableOpacity
-                    key={color}
-                    style={[
-                      styles.colorCircle,
-                      { backgroundColor: color },
-                      isSelected && styles.colorCircleSelected,
-                    ]}
-                    onPress={() => setNewCatColor(color)}
-                    activeOpacity={0.8}
-                  >
-                    {isSelected && (
-                      <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            <View style={styles.modalActionsRow}>
-              <TouchableOpacity
-                style={styles.modalCancelBtn}
-                onPress={() => setCreateModalVisible(false)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.modalCancelBtnText}>Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.modalSubmitBtn}
-                onPress={handleCreateSubmit}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.modalSubmitBtnText}>Create</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onClose={() => setCreateModalVisible(false)}
+        onSuccess={(newCategory) => {
+          setCreateModalVisible(false);
+          setActiveCategoryId(newCategory.id);
+        }}
+      />
 
       {/* RENAME CATEGORY MODAL */}
       <Modal

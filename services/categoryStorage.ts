@@ -316,6 +316,40 @@ export const useCategories = () => {
   };
 };
 
+export const useSavedItems = (): SavedItem[] => {
+  const [items, setItems] = useState<SavedItem[]>(() => getSavedItems());
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (initialized) {
+      setItems(getSavedItems());
+    } else {
+      initCategoryStorage().then(() => {
+        if (isMounted) {
+          setItems(getSavedItems());
+        }
+      });
+    }
+
+    const handleChange = () => {
+      if (isMounted) {
+        setItems(getSavedItems());
+      }
+    };
+
+    listeners.push(handleChange);
+
+    return () => {
+      isMounted = false;
+      const idx = listeners.indexOf(handleChange);
+      if (idx !== -1) listeners.splice(idx, 1);
+    };
+  }, []);
+
+  return items;
+};
+
 export const useItemCategories = (
   contentType: ContentType,
   contentId?: string | number | null
