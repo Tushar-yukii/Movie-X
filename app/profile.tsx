@@ -3,7 +3,7 @@ import { icons } from "@/constants/icons";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
-import { getSavedItems, useCategories } from "@/services/categoryStorage";
+import { useCategories, useSavedItems } from "@/services/categoryStorage";
 
 import {
   KeyboardAvoidingView,
@@ -22,7 +22,7 @@ export default function ProfileScreen() {
   // USER NAME
   const [name, setName] = useState("yukki");
   const { categories } = useCategories();
-  const savedItems = getSavedItems();
+  const savedItems = useSavedItems();
   const totalSavedCount = savedItems.length;
 
   const animeCount = useMemo(() => {

@@ -44,6 +44,8 @@ const TrendingCard = ({
   );
 };
 
+TrendingCard.displayName = "TrendingCard";
+
 export default memo(TrendingCard);
 
 const styles = StyleSheet.create({

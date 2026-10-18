@@ -49,6 +49,8 @@ const AnimeCard = ({
   );
 };
 
+AnimeCard.displayName = "AnimeCard";
+
 export default memo(AnimeCard);
 
 const styles = StyleSheet.create({

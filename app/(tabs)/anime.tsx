@@ -14,6 +14,8 @@ import {
 const MemoAnimeCard = memo(function MemoAnimePageCard({ item }: { item: any }) {
   return <AnimePageCard anime={item} />;
 });
+MemoAnimeCard.displayName = "MemoAnimeCard";
+
 export default function AnimeScreen() {
   const {
     heroSlides,

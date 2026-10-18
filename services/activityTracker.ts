@@ -89,13 +89,14 @@ let activityStore: ActivityRecord[] = [];
 let listeners: (() => void)[] = [];
 
 const notifyListeners = () => {
-  listeners.forEach((listener) => {
+  const currentListeners = [...listeners];
+  for (const listener of currentListeners) {
     try {
       listener();
-    } catch {
-      // Ignore listener error
+    } catch (err) {
+      console.warn("Activity listener error:", err);
     }
-  });
+  }
 };
 
 // Local storage key

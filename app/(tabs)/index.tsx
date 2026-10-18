@@ -41,10 +41,12 @@ const MemoTrendingCard = memo(function MemoTrendingCard({
 }) {
   return <TrendingCard movie={item} />;
 });
+MemoTrendingCard.displayName = "MemoTrendingCard";
 
 const MemoAnimeCard = memo(function MemoAnimeCard({ item }: { item: any }) {
   return <AnimeCard anime={item} />;
 });
+MemoAnimeCard.displayName = "MemoAnimeCard";
 
 /* 
    Home screen

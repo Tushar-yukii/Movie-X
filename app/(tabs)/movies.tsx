@@ -18,6 +18,7 @@ import {
 const MemoMovieCard = memo(function MemoMovieCard({ item }: { item: any }) {
   return <TrendingCard movie={item} />;
 });
+MemoMovieCard.displayName = "MemoMovieCard";
 
 export default function MoviesScreen() {
   const {

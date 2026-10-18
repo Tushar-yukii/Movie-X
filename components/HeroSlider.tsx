@@ -300,6 +300,8 @@ const HeroSlider = ({ slides, label = "Series", type = "tv" }: Props) => {
   );
 };
 
+HeroSlider.displayName = "HeroSlider";
+
 export default React.memo(HeroSlider);
 
 const styles = StyleSheet.create({

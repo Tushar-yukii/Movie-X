@@ -64,7 +64,7 @@ const TabIcon = ({ focused, icon, title }: any) => {
   );
 };
 
-const _layout = () => {
+export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
@@ -152,6 +152,4 @@ const _layout = () => {
       />
     </Tabs>
   );
-};
-
-export default _layout;
+}

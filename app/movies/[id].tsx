@@ -142,8 +142,9 @@ const RecommendationCard = memo(function RecommendationCard({
     </TouchableOpacity>
   );
 });
+RecommendationCard.displayName = "RecommendationCard";
 
-const MovieDetails = () => {
+export default function MovieDetails() {
   const { id, type } = useLocalSearchParams<{
     id?: string;
     type?: string;
@@ -701,6 +702,4 @@ const MovieDetails = () => {
       />
     </View>
   );
-};
-
-export default MovieDetails;
+}

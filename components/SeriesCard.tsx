@@ -46,6 +46,8 @@ const SeriesCard = ({ series }: SeriesCardProps) => {
   );
 };
 
+SeriesCard.displayName = "SeriesCard";
+
 export default memo(SeriesCard);
 
 const styles = StyleSheet.create({

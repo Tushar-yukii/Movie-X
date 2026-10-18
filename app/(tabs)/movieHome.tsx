@@ -25,6 +25,7 @@ const MemoSeriesCard = memo(function MemoSeriesCard({
 }) {
   return <SeriesCard series={item} />;
 });
+MemoSeriesCard.displayName = "MemoSeriesCard";
 
 export default function WebSeriesScreen() {
   const {

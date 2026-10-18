@@ -33,7 +33,6 @@ const MovieCard = ({ id, poster_path, title, release_date }: Movie) => {
   );
 };
 
-// memo — only re-render this card if its props actually changed
-// Without memo: scroll → all 80 cards re-render → lag
-// With memo: scroll → only visible cards re-render → smooth
+MovieCard.displayName = "MovieCard";
+
 export default memo(MovieCard);
